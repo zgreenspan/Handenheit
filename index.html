@@ -77,8 +77,22 @@
                     <div class="ai-search-header">
                         <div class="ai-icon">✨</div>
                         <input type="text" id="aiSearchInput" placeholder="Ask AI: 'Find students interested in national security' or 'Who has experience at startups?'" class="ai-search-input">
+                        <select id="modelSelect" class="model-select">
+                            <option value="gemini-pro">Gemini Pro (Default)</option>
+                            <option value="gemini-flash">Gemini Flash (Faster)</option>
+                            <option value="claude-sonnet">Claude Sonnet (Best)</option>
+                            <option value="gpt-4o">GPT-4o</option>
+                            <option value="gpt-4o-mini">GPT-4o mini</option>
+                        </select>
                         <button id="aiSearchBtn" class="btn btn-primary">Search</button>
                         <button id="clearSearchBtn" class="btn btn-secondary" style="display: none;">Clear Results</button>
+                    </div>
+                    <div class="model-info">
+                        <div class="model-details" id="modelDetails">
+                            <span class="model-detail-item"><strong>Quality:</strong> <span id="modelQuality">⭐⭐⭐⭐ Very Good</span></span>
+                            <span class="model-detail-item"><strong>Cost:</strong> <span id="modelCost">~$0.56 per 10 searches</span></span>
+                            <span class="model-detail-item"><strong>Speed:</strong> <span id="modelSpeed">Medium (3-5s)</span></span>
+                        </div>
                     </div>
                     <div id="aiSearchStatus" class="ai-search-status"></div>
                     <div id="aiSearchResults" class="ai-search-results"></div>
@@ -128,17 +142,61 @@
                 <h2>Settings & Data Management</h2>
 
                 <div class="section">
-                    <h3>AI Search Configuration</h3>
-                    <p>Enter your Anthropic API key to enable AI-powered natural language search.</p>
+                    <h3>AI Model Configuration</h3>
+                    <p>Configure API keys for different AI models. Only add keys for models you plan to use.</p>
                     <p style="font-size: 0.875rem; color: #6E6E73; margin-top: 8px;">
-                        Get your API key from <a href="https://console.anthropic.com/" target="_blank" style="color: #0071E3;">console.anthropic.com</a>.
-                        Your key is stored locally and never sent anywhere except Anthropic's API.
+                        All keys are stored locally in your browser and only sent to their respective AI providers.
                     </p>
-                    <div style="display: flex; gap: 12px; margin-top: 16px;">
-                        <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="flex: 1;">
-                        <button id="saveApiKeyBtn" class="btn btn-primary">Save Key</button>
+
+                    <!-- Google Gemini API Key (Default) -->
+                    <div style="margin-top: 24px;">
+                        <h4 style="font-size: 1rem; margin-bottom: 8px;">
+                            <span style="background: linear-gradient(135deg, #4285F4, #34A853, #FBBC05, #EA4335); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 600;">Google Gemini</span>
+                            <span style="background: #34A853; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px;">Recommended</span>
+                        </h4>
+                        <p style="font-size: 0.875rem; color: #6E6E73; margin-bottom: 12px;">
+                            Get your API key from <a href="https://aistudio.google.com/apikey" target="_blank" style="color: #0071E3;">aistudio.google.com/apikey</a><br>
+                            <strong>Cost:</strong> ~$0.56 per 10 searches (free caching) | <strong>Quality:</strong> ⭐⭐⭐⭐ Very Good
+                        </p>
+                        <div style="display: flex; gap: 12px;">
+                            <input type="password" id="googleApiKeyInput" placeholder="AIza..." style="flex: 1;">
+                            <button id="saveGoogleKeyBtn" class="btn btn-primary">Save Key</button>
+                        </div>
+                        <div id="googleApiKeyStatus" style="margin-top: 8px; font-size: 0.875rem;"></div>
                     </div>
-                    <div id="apiKeyStatus" style="margin-top: 12px; font-size: 0.875rem;"></div>
+
+                    <!-- Anthropic Claude API Key -->
+                    <div style="margin-top: 24px;">
+                        <h4 style="font-size: 1rem; margin-bottom: 8px;">
+                            <span style="color: #D97757; font-weight: 600;">Anthropic Claude</span>
+                            <span style="background: #D97757; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px;">Best Quality</span>
+                        </h4>
+                        <p style="font-size: 0.875rem; color: #6E6E73; margin-bottom: 12px;">
+                            Get your API key from <a href="https://console.anthropic.com/" target="_blank" style="color: #0071E3;">console.anthropic.com</a><br>
+                            <strong>Cost:</strong> ~$2.57 per 10 searches (with caching) | <strong>Quality:</strong> ⭐⭐⭐⭐⭐ Excellent
+                        </p>
+                        <div style="display: flex; gap: 12px;">
+                            <input type="password" id="anthropicApiKeyInput" placeholder="sk-ant-..." style="flex: 1;">
+                            <button id="saveAnthropicKeyBtn" class="btn btn-primary">Save Key</button>
+                        </div>
+                        <div id="anthropicApiKeyStatus" style="margin-top: 8px; font-size: 0.875rem;"></div>
+                    </div>
+
+                    <!-- OpenAI API Key -->
+                    <div style="margin-top: 24px;">
+                        <h4 style="font-size: 1rem; margin-bottom: 8px;">
+                            <span style="color: #10A37F; font-weight: 600;">OpenAI GPT-4o</span>
+                        </h4>
+                        <p style="font-size: 0.875rem; color: #6E6E73; margin-bottom: 12px;">
+                            Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank" style="color: #0071E3;">platform.openai.com/api-keys</a><br>
+                            <strong>Cost:</strong> ~$6.19 per 10 searches (GPT-4o) or $0.39 (GPT-4o mini) | <strong>Quality:</strong> ⭐⭐⭐⭐ to ⭐⭐⭐
+                        </p>
+                        <div style="display: flex; gap: 12px;">
+                            <input type="password" id="openaiApiKeyInput" placeholder="sk-..." style="flex: 1;">
+                            <button id="saveOpenaiKeyBtn" class="btn btn-primary">Save Key</button>
+                        </div>
+                        <div id="openaiApiKeyStatus" style="margin-top: 8px; font-size: 0.875rem;"></div>
+                    </div>
                 </div>
 
                 <div class="section">

@@ -3,36 +3,9 @@ import json
 import urllib.request
 import urllib.error
 
-class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
-        """Handle POST requests for AI search"""
-        try:
-            # Read request body
-            content_length = int(self.headers['Content-Length'])
-            body = self.rfile.read(content_length)
-            data = json.loads(body.decode('utf-8'))
-
-            api_key = data.get('apiKey')
-            search_query = data.get('query')
-            attendees_data = data.get('attendees')
-
-            if not api_key:
-                self.send_error_response({'error': 'API key is required'}, 400)
-                return
-
-            if not search_query:
-                self.send_error_response({'error': 'Search query is required'}, 400)
-                return
-
-            # Prepare the prompt for Claude
-            prompt = f"""*** CRITICAL: Every match object MUST include a "score" field (integer 0-100). DO NOT OMIT THIS FIELD. ***
-
-Search query: "{search_query}"
-
-Attendee database:
-{attendees_data}
-
-SCORING RULES (score field is REQUIRED):
+def get_base_prompt():
+    """Returns the base prompt text used for all models"""
+    return """SCORING RULES (score field is REQUIRED):
 Assign scores based on how well they satisfy the search criteria:
 - 95-100: Perfect match - directly and explicitly meets the search criteria (e.g., currently works at the company being searched for)
 - 85-94: Exceptional match - meets all or nearly all criteria with strong, direct evidence
@@ -82,122 +55,324 @@ CRITICAL RULES FOR HIGHLIGHTS:
 - Be rigorous with scoring - don't inflate scores without strong justification
 
 Return a JSON object with this EXACT structure:
-{{
+{
   "summary": "string",
   "matches": [
-    {{
+    {
       "id": number,
       "score": number (REQUIRED - 0 to 100),
       "relevance": "string",
       "highlights": [
-        {{
+        {
           "section": "string (experience/education/skills/headline/organizations/volunteering)",
           "index": number (the array index of the item to highlight, e.g., 0 for first experience, 2 for third education),
           "field": "string (optional - which specific field: title/company/school/degree/name/role/organization)",
           "reason": "string (why this specific item matches)",
           "weight": "low/medium/high"
-        }}
+        }
       ]
-    }}
+    }
   ]
-}}
+}
 
 CRITICAL: For highlights with section="experience", "education", "organizations", or "volunteering":
 - You MUST provide the "index" field specifying which array item (0-indexed)
 - You MUST provide the "field" to specify what to highlight (e.g., "title", "company", "school", "role")
 - Do NOT use vague text matching - be explicit about the exact array index
-- Example: {{"section": "experience", "index": 2, "field": "company", "reason": "Worked at Twitch"}} means highlight the company field of the 3rd experience entry
+- Example: {"section": "experience", "index": 2, "field": "company", "reason": "Worked at Twitch"} means highlight the company field of the 3rd experience entry
 
 Return ONLY the JSON, nothing else. THE "score" FIELD IS MANDATORY FOR EVERY MATCH.
 
 Example format:
-{{
+{
   "summary": "Found 2 people with connection to Palantir (1 perfect match, 1 good match)",
   "matches": [
-    {{
+    {
       "id": "123",
       "score": 98,
       "relevance": "Perfect match: Currently employed at Palantir Technologies as Tech Lead",
       "highlights": [
-        {{
+        {
           "section": "experience",
           "index": 0,
           "field": "title",
           "reason": "Currently works at Palantir as Tech Lead",
           "weight": "high"
-        }},
-        {{
+        },
+        {
           "section": "headline",
           "reason": "Headline mentions Palantir",
           "weight": "high"
-        }}
+        }
       ]
-    }},
-    {{
+    },
+    {
       "id": "456",
       "score": 88,
       "relevance": "Exceptional match: Previously worked at Palantir as Software Engineer for 2 years",
       "highlights": [
-        {{
+        {
           "section": "experience",
           "index": 1,
           "field": "company",
           "reason": "Past employment at Palantir",
           "weight": "high"
-        }}
+        }
       ]
-    }}
+    }
   ]
-}}
+}
 
 CRITICAL SCORING REMINDER:
 - If someone CURRENTLY works at a company being searched = score 95-100 (PERFECT MATCH)
 - If someone PREVIOUSLY worked at a company being searched = score 85-94 (EXCEPTIONAL MATCH)
 - DO NOT give scores below 95 for current employees of companies being explicitly searched for"""
 
-            # Make the request to Anthropic API
-            req_data = {
-                'model': 'claude-sonnet-4-20250514',
-                'max_tokens': 4000,
-                'temperature': 0.5,
-                'system': 'You are a precise JSON generator. You MUST include a "score" field (integer 0-100) for every match object. This field is absolutely mandatory and cannot be omitted under any circumstances.',
-                'messages': [{
-                    'role': 'user',
-                    'content': prompt
-                }]
-            }
+def call_anthropic_api(api_key, search_query, attendees_data):
+    """Call Anthropic API with prompt caching"""
+    base_prompt = get_base_prompt()
 
-            req = urllib.request.Request(
-                'https://api.anthropic.com/v1/messages',
-                data=json.dumps(req_data).encode('utf-8'),
-                headers={
-                    'Content-Type': 'application/json',
-                    'x-api-key': api_key,
-                    'anthropic-version': '2023-06-01'
+    req_data = {
+        'model': 'claude-sonnet-4-20250514',
+        'max_tokens': 4000,
+        'temperature': 0.5,
+        'system': [{
+            'type': 'text',
+            'text': 'You are a precise JSON generator. You MUST include a "score" field (integer 0-100) for every match object. This field is absolutely mandatory and cannot be omitted under any circumstances.',
+            'cache_control': {'type': 'ephemeral'}
+        }],
+        'messages': [{
+            'role': 'user',
+            'content': [
+                {
+                    'type': 'text',
+                    'text': f"""*** CRITICAL: Every match object MUST include a "score" field (integer 0-100). DO NOT OMIT THIS FIELD. ***
+
+Attendee database:
+{attendees_data}
+
+{base_prompt}""",
+                    'cache_control': {'type': 'ephemeral'}
+                },
+                {
+                    'type': 'text',
+                    'text': f'Search query: "{search_query}"'
                 }
-            )
+            ]
+        }]
+    }
 
-            with urllib.request.urlopen(req, timeout=30) as response:
-                result = json.loads(response.read().decode('utf-8'))
-                self.send_json_response(result, 200)
+    req = urllib.request.Request(
+        'https://api.anthropic.com/v1/messages',
+        data=json.dumps(req_data).encode('utf-8'),
+        headers={
+            'Content-Type': 'application/json',
+            'x-api-key': api_key,
+            'anthropic-version': '2023-06-01'
+        }
+    )
+
+    return urllib.request.urlopen(req, timeout=30)
+
+def call_gemini_api(api_key, search_query, attendees_data, model_id):
+    """Call Google Gemini API"""
+    base_prompt = get_base_prompt()
+
+    url = f'https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent?key={api_key}'
+
+    req_data = {
+        'contents': [{
+            'parts': [{
+                'text': f"""*** CRITICAL: Every match object MUST include a "score" field (integer 0-100). DO NOT OMIT THIS FIELD. ***
+
+You are a precise JSON generator. You MUST include a "score" field (integer 0-100) for every match object.
+
+Attendee database:
+{attendees_data}
+
+{base_prompt}
+
+Search query: "{search_query}"
+"""
+            }]
+        }],
+        'generationConfig': {
+            'temperature': 0.5,
+            'maxOutputTokens': 4000
+        }
+    }
+
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(req_data).encode('utf-8'),
+        headers={'Content-Type': 'application/json'}
+    )
+
+    return urllib.request.urlopen(req, timeout=30)
+
+def call_openai_api(api_key, search_query, attendees_data, model_id):
+    """Call OpenAI API"""
+    base_prompt = get_base_prompt()
+
+    req_data = {
+        'model': model_id,
+        'messages': [
+            {
+                'role': 'system',
+                'content': 'You are a precise JSON generator. You MUST include a "score" field (integer 0-100) for every match object. This field is absolutely mandatory and cannot be omitted under any circumstances.'
+            },
+            {
+                'role': 'user',
+                'content': f"""*** CRITICAL: Every match object MUST include a "score" field (integer 0-100). DO NOT OMIT THIS FIELD. ***
+
+Attendee database:
+{attendees_data}
+
+{base_prompt}
+
+Search query: "{search_query}"
+"""
+            }
+        ],
+        'temperature': 0.5,
+        'max_tokens': 4000
+    }
+
+    req = urllib.request.Request(
+        'https://api.openai.com/v1/chat/completions',
+        data=json.dumps(req_data).encode('utf-8'),
+        headers={
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {api_key}'
+        }
+    )
+
+    return urllib.request.urlopen(req, timeout=30)
+
+def parse_gemini_response(response_json):
+    """Parse Gemini API response to match Anthropic format"""
+    try:
+        text = response_json['candidates'][0]['content']['parts'][0]['text']
+
+        # Remove markdown code blocks if present
+        text = text.strip()
+        if text.startswith('```json'):
+            text = text[7:]
+        if text.startswith('```'):
+            text = text[3:]
+        if text.endswith('```'):
+            text = text[:-3]
+        text = text.strip()
+
+        result_json = json.loads(text)
+
+        # Return in Anthropic format
+        return {
+            'content': [{
+                'type': 'text',
+                'text': json.dumps(result_json)
+            }],
+            'usage': response_json.get('usageMetadata', {})
+        }
+    except Exception as e:
+        raise Exception(f"Failed to parse Gemini response: {str(e)}")
+
+def parse_openai_response(response_json):
+    """Parse OpenAI API response to match Anthropic format"""
+    try:
+        text = response_json['choices'][0]['message']['content']
+
+        # Remove markdown code blocks if present
+        text = text.strip()
+        if text.startswith('```json'):
+            text = text[7:]
+        if text.startswith('```'):
+            text = text[3:]
+        if text.endswith('```'):
+            text = text[:-3]
+        text = text.strip()
+
+        result_json = json.loads(text)
+
+        # Return in Anthropic format
+        return {
+            'content': [{
+                'type': 'text',
+                'text': json.dumps(result_json)
+            }],
+            'usage': response_json.get('usage', {})
+        }
+    except Exception as e:
+        raise Exception(f"Failed to parse OpenAI response: {str(e)}")
+
+class handler(BaseHTTPRequestHandler):
+    def do_POST(self):
+        """Handle POST requests for AI search"""
+        try:
+            # Read request body
+            content_length = int(self.headers['Content-Length'])
+            body = self.rfile.read(content_length)
+            data = json.loads(body.decode('utf-8'))
+
+            api_key = data.get('apiKey')
+            search_query = data.get('query')
+            attendees_data = data.get('attendees')
+            model = data.get('model', 'gemini-pro')  # Default to Gemini Pro
+
+            if not api_key:
+                self.send_error_response({'error': 'API key is required'}, 400)
+                return
+
+            if not search_query:
+                self.send_error_response({'error': 'Search query is required'}, 400)
+                return
+
+            # Call the appropriate API based on model
+            if model == 'claude-sonnet':
+                response = call_anthropic_api(api_key, search_query, attendees_data)
+            elif model == 'gemini-pro':
+                response = call_gemini_api(api_key, search_query, attendees_data, 'gemini-1.5-pro-latest')
+            elif model == 'gemini-flash':
+                response = call_gemini_api(api_key, search_query, attendees_data, 'gemini-1.5-flash-latest')
+            elif model == 'gpt-4o':
+                response = call_openai_api(api_key, search_query, attendees_data, 'gpt-4o')
+            elif model == 'gpt-4o-mini':
+                response = call_openai_api(api_key, search_query, attendees_data, 'gpt-4o-mini')
+            else:
+                self.send_error_response({'error': f'Invalid model: {model}'}, 400)
+                return
+
+            result = json.loads(response.read().decode('utf-8'))
+
+            # Parse response based on provider
+            if model.startswith('gemini'):
+                result = parse_gemini_response(result)
+            elif model.startswith('gpt'):
+                result = parse_openai_response(result)
+
+            self.send_json_response(result, 200)
 
         except urllib.error.HTTPError as e:
             error_body = e.read().decode('utf-8')
             try:
                 error_json = json.loads(error_body)
-                error_type = error_json.get('error', {}).get('type', 'unknown')
-                error_message = error_json.get('error', {}).get('message', 'Unknown error')
 
-                if error_type == 'authentication_error':
+                # Handle different error formats
+                if model == 'claude-sonnet':
+                    error_type = error_json.get('error', {}).get('type', 'unknown')
+                    error_message = error_json.get('error', {}).get('message', 'Unknown error')
+                elif model.startswith('gemini'):
+                    error_message = error_json.get('error', {}).get('message', 'Unknown error')
+                    error_type = 'api_error'
+                else:  # OpenAI
+                    error_message = error_json.get('error', {}).get('message', 'Unknown error')
+                    error_type = error_json.get('error', {}).get('type', 'unknown')
+
+                if 'authentication' in error_type.lower() or 'auth' in error_message.lower():
                     self.send_error_response({
                         'error': 'Invalid API key',
-                        'details': 'Your Anthropic API key is invalid. Please create a new one at console.anthropic.com and save it in the Import/Export tab.'
+                        'details': f'Your API key is invalid. Please check your key and try again. Error: {error_message}'
                     }, 401)
-                elif error_type == 'not_found_error':
-                    self.send_error_response({
-                        'error': 'Model not accessible',
-                        'details': f'The AI model is not accessible with your API key. This usually means your account needs to be upgraded or the API key lacks permissions. Error: {error_message}'
-                    }, 403)
                 else:
                     self.send_error_response({
                         'error': f'API error ({error_type})',

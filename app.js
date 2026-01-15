@@ -3,12 +3,19 @@
 class AttendeesDatabase {
     constructor() {
         this.attendees = [];
-        this.apiKey = '';
+        this.apiKeys = {
+            anthropic: '',
+            google: '',
+            openai: ''
+        };
+        this.selectedModel = 'gemini-pro'; // Default model
         this.loadFromLocalStorage();
-        this.loadApiKey();
+        this.loadApiKeys();
+        this.loadModelPreference();
         this.initializeEventListeners();
         this.updateStats();
         this.renderAttendees();
+        this.updateModelInfo();
 
         // Initialize tab highlight position
         setTimeout(() => this.updateTabHighlight(), 100);
@@ -34,37 +41,125 @@ class AttendeesDatabase {
         localStorage.setItem('attendeesDatabase', JSON.stringify(this.attendees));
     }
 
-    loadApiKey() {
-        const stored = localStorage.getItem('anthropicApiKey');
-        if (stored) {
-            this.apiKey = stored;
-            const input = document.getElementById('apiKeyInput');
+    loadApiKeys() {
+        // Load all API keys
+        const anthropicKey = localStorage.getItem('anthropicApiKey');
+        const googleKey = localStorage.getItem('googleApiKey');
+        const openaiKey = localStorage.getItem('openaiApiKey');
+
+        if (anthropicKey) {
+            this.apiKeys.anthropic = anthropicKey;
+            const input = document.getElementById('anthropicApiKeyInput');
             if (input) input.value = '••••••••';
+        }
+
+        if (googleKey) {
+            this.apiKeys.google = googleKey;
+            const input = document.getElementById('googleApiKeyInput');
+            if (input) input.value = '••••••••';
+        }
+
+        if (openaiKey) {
+            this.apiKeys.openai = openaiKey;
+            const input = document.getElementById('openaiApiKeyInput');
+            if (input) input.value = '••••••••';
+        }
+
+        // Backwards compatibility: load old single API key as anthropic key
+        const oldKey = localStorage.getItem('anthropicApiKey');
+        if (oldKey && !this.apiKeys.anthropic) {
+            this.apiKeys.anthropic = oldKey;
         }
     }
 
-    saveApiKey() {
-        const input = document.getElementById('apiKeyInput');
+    loadModelPreference() {
+        const stored = localStorage.getItem('selectedModel');
+        if (stored) {
+            this.selectedModel = stored;
+            const select = document.getElementById('modelSelect');
+            if (select) select.value = stored;
+        }
+    }
+
+    saveApiKey(provider) {
+        const inputId = `${provider}ApiKeyInput`;
+        const statusId = `${provider}ApiKeyStatus`;
+        const input = document.getElementById(inputId);
         const key = input.value.trim();
 
         if (!key || key === '••••••••') {
-            document.getElementById('apiKeyStatus').innerHTML = '<span style="color: #FF3B30;">Please enter a valid API key</span>';
+            document.getElementById(statusId).innerHTML = '<span style="color: #FF3B30;">Please enter a valid API key</span>';
             return;
         }
 
-        if (!key.startsWith('sk-ant-')) {
-            document.getElementById('apiKeyStatus').innerHTML = '<span style="color: #FF3B30;">Invalid API key format. Should start with sk-ant-</span>';
+        // Validate key format
+        if (provider === 'anthropic' && !key.startsWith('sk-ant-')) {
+            document.getElementById(statusId).innerHTML = '<span style="color: #FF3B30;">Invalid key format. Should start with sk-ant-</span>';
+            return;
+        } else if (provider === 'openai' && !key.startsWith('sk-')) {
+            document.getElementById(statusId).innerHTML = '<span style="color: #FF3B30;">Invalid key format. Should start with sk-</span>';
+            return;
+        } else if (provider === 'google' && !key.startsWith('AIza')) {
+            document.getElementById(statusId).innerHTML = '<span style="color: #FF3B30;">Invalid key format. Should start with AIza</span>';
             return;
         }
 
-        this.apiKey = key;
-        localStorage.setItem('anthropicApiKey', key);
+        this.apiKeys[provider] = key;
+        localStorage.setItem(`${provider}ApiKey`, key);
         input.value = '••••••••';
-        document.getElementById('apiKeyStatus').innerHTML = '<span style="color: #006B3D;">✓ API key saved successfully</span>';
+        document.getElementById(statusId).innerHTML = '<span style="color: #006B3D;">✓ API key saved successfully</span>';
 
         setTimeout(() => {
-            document.getElementById('apiKeyStatus').innerHTML = '';
+            document.getElementById(statusId).innerHTML = '';
         }, 3000);
+    }
+
+    changeModel() {
+        const select = document.getElementById('modelSelect');
+        this.selectedModel = select.value;
+        localStorage.setItem('selectedModel', this.selectedModel);
+        this.updateModelInfo();
+    }
+
+    updateModelInfo() {
+        const qualitySpan = document.getElementById('modelQuality');
+        const costSpan = document.getElementById('modelCost');
+        const speedSpan = document.getElementById('modelSpeed');
+
+        const modelInfo = {
+            'gemini-pro': {
+                quality: '⭐⭐⭐⭐ Very Good',
+                cost: '~$0.56 per 10 searches (free caching)',
+                speed: 'Medium (3-5s)'
+            },
+            'gemini-flash': {
+                quality: '⭐⭐⭐ Good',
+                cost: '~$0.03 per 10 searches (free caching)',
+                speed: 'Fast (1-2s)'
+            },
+            'claude-sonnet': {
+                quality: '⭐⭐⭐⭐⭐ Excellent',
+                cost: '~$2.57 per 10 searches (with caching)',
+                speed: 'Fast (2-3s)'
+            },
+            'gpt-4o': {
+                quality: '⭐⭐⭐⭐ Very Good',
+                cost: '~$6.19 per 10 searches',
+                speed: 'Fast (2-3s)'
+            },
+            'gpt-4o-mini': {
+                quality: '⭐⭐⭐ Good',
+                cost: '~$0.39 per 10 searches',
+                speed: 'Very Fast (1-2s)'
+            }
+        };
+
+        const info = modelInfo[this.selectedModel];
+        if (info && qualitySpan && costSpan && speedSpan) {
+            qualitySpan.textContent = info.quality;
+            costSpan.textContent = info.cost;
+            speedSpan.textContent = info.speed;
+        }
     }
 
     // Initialize Event Listeners
@@ -95,7 +190,14 @@ class AttendeesDatabase {
         document.getElementById('exportBtn').addEventListener('click', () => this.exportData());
         document.getElementById('importBtn').addEventListener('click', () => this.importData());
         document.getElementById('clearDbBtn').addEventListener('click', () => this.clearDatabase());
-        document.getElementById('saveApiKeyBtn').addEventListener('click', () => this.saveApiKey());
+
+        // API Keys
+        document.getElementById('saveAnthropicKeyBtn').addEventListener('click', () => this.saveApiKey('anthropic'));
+        document.getElementById('saveGoogleKeyBtn').addEventListener('click', () => this.saveApiKey('google'));
+        document.getElementById('saveOpenaiKeyBtn').addEventListener('click', () => this.saveApiKey('openai'));
+
+        // Model selection
+        document.getElementById('modelSelect').addEventListener('change', () => this.changeModel());
 
         // Allow Enter key to submit in school input
         document.getElementById('schoolInput').addEventListener('keypress', (e) => {
@@ -780,10 +882,29 @@ class AttendeesDatabase {
             return;
         }
 
-        if (!this.apiKey) {
-            statusDiv.className = 'ai-search-status error';
-            statusDiv.innerHTML = 'Please configure your API key in the Import/Export tab first';
-            return;
+        // Determine which API key to use based on selected model
+        let apiKey = '';
+        if (this.selectedModel === 'claude-sonnet') {
+            apiKey = this.apiKeys.anthropic;
+            if (!apiKey) {
+                statusDiv.className = 'ai-search-status error';
+                statusDiv.innerHTML = 'Please configure your Anthropic API key in the Import/Export tab first';
+                return;
+            }
+        } else if (this.selectedModel.startsWith('gemini')) {
+            apiKey = this.apiKeys.google;
+            if (!apiKey) {
+                statusDiv.className = 'ai-search-status error';
+                statusDiv.innerHTML = 'Please configure your Google API key in the Import/Export tab first';
+                return;
+            }
+        } else if (this.selectedModel.startsWith('gpt')) {
+            apiKey = this.apiKeys.openai;
+            if (!apiKey) {
+                statusDiv.className = 'ai-search-status error';
+                statusDiv.innerHTML = 'Please configure your OpenAI API key in the Import/Export tab first';
+                return;
+            }
         }
 
         if (this.attendees.length === 0) {
@@ -801,9 +922,9 @@ class AttendeesDatabase {
         try {
             // Use the proxy server - works both locally and on Vercel
             // On Vercel: /api/search points to the serverless function
-            // Locally: falls back to localhost:5002 if /api/search fails
+            // Locally: falls back to localhost:8000 if /api/search fails
             const apiUrl = window.location.hostname === 'localhost'
-                ? 'http://localhost:5002/api/search'
+                ? 'http://localhost:8000/api/search'
                 : '/api/search';
 
             const response = await fetch(apiUrl, {
@@ -812,7 +933,8 @@ class AttendeesDatabase {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    apiKey: this.apiKey,
+                    apiKey: apiKey,
+                    model: this.selectedModel,
                     query: query,
                     attendees: JSON.stringify(this.attendees, null, 2)
                 })
