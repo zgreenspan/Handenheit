@@ -148,6 +148,16 @@
                         All keys are stored locally in your browser and only sent to their respective AI providers.
                     </p>
 
+                    <div style="background: #F5F5F7; padding: 16px; border-radius: 8px; margin-top: 16px;">
+                        <h4 style="font-size: 0.9375rem; margin-bottom: 8px; color: #1D1D1F;">💡 How Caching Works</h4>
+                        <p style="font-size: 0.8125rem; color: #6E6E73; line-height: 1.5;">
+                            <strong>First search:</strong> Pays full cost to load your entire database into AI memory<br>
+                            <strong>Next searches (within cache window):</strong> Database stays in memory, only your new query is processed<br>
+                            <strong>After cache expires:</strong> Next search rebuilds cache at full cost<br>
+                            <strong>Gemini's advantage:</strong> Cached database is 100% FREE (only query costs), making it cheapest for multiple searches
+                        </p>
+                    </div>
+
                     <!-- Google Gemini API Key (Default) -->
                     <div style="margin-top: 24px;">
                         <h4 style="font-size: 1rem; margin-bottom: 8px;">
@@ -156,7 +166,7 @@
                         </h4>
                         <p style="font-size: 0.875rem; color: #6E6E73; margin-bottom: 12px;">
                             Get your API key from <a href="https://aistudio.google.com/apikey" target="_blank" style="color: #0071E3;">aistudio.google.com/apikey</a><br>
-                            <strong>Cost:</strong> ~$0.56/10 searches | <strong>Cache:</strong> 5-60min | <strong>Quality:</strong> ⭐⭐⭐⭐ Very Good
+                            <strong>Cost:</strong> First: $1.25, Then: $0.001 each | <strong>Cache:</strong> 5-60min (FREE!) | <strong>Quality:</strong> ⭐⭐⭐⭐ Very Good
                         </p>
                         <div style="display: flex; gap: 12px;">
                             <input type="password" id="googleApiKeyInput" placeholder="AIza..." style="flex: 1;">
@@ -173,7 +183,7 @@
                         </h4>
                         <p style="font-size: 0.875rem; color: #6E6E73; margin-bottom: 12px;">
                             Get your API key from <a href="https://console.anthropic.com/" target="_blank" style="color: #0071E3;">console.anthropic.com</a><br>
-                            <strong>Cost:</strong> ~$2.57/10 searches | <strong>Cache:</strong> 5min (90% off) | <strong>Quality:</strong> ⭐⭐⭐⭐⭐ Excellent
+                            <strong>Cost:</strong> First: $1.35, Then: $0.14 each | <strong>Cache:</strong> 5min (90% off) | <strong>Quality:</strong> ⭐⭐⭐⭐⭐ Excellent
                         </p>
                         <div style="display: flex; gap: 12px;">
                             <input type="password" id="anthropicApiKeyInput" placeholder="sk-ant-..." style="flex: 1;">
@@ -189,7 +199,8 @@
                         </h4>
                         <p style="font-size: 0.875rem; color: #6E6E73; margin-bottom: 12px;">
                             Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank" style="color: #0071E3;">platform.openai.com/api-keys</a><br>
-                            <strong>Cost:</strong> ~$6.19/10 (GPT-4o) or $0.39/10 (mini) | <strong>Cache:</strong> 5-10min (50% off) | <strong>Quality:</strong> ⭐⭐⭐⭐ to ⭐⭐⭐
+                            <strong>GPT-4o:</strong> First: $2.25, Then: $1.13 each | <strong>GPT-4o mini:</strong> First: $0.07, Then: $0.035 each<br>
+                            <strong>Cache:</strong> 5-10min (50% off) | <strong>Quality:</strong> ⭐⭐⭐⭐ to ⭐⭐⭐
                         </p>
                         <div style="display: flex; gap: 12px;">
                             <input type="password" id="openaiApiKeyInput" placeholder="sk-..." style="flex: 1;">
