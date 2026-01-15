@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Entry - Conference Attendees</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #FAFAFA;
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #1D1D1F;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            font-size: 2em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: #6E6E73;
+            margin-bottom: 32px;
+        }
+
+        .instructions {
+            background: #F5F5F7;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #1D1D1F;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #D2D2D7;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            background: #FAFAFA;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #0071E3;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 980px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-right: 12px;
+        }
+
+        .btn-primary {
+            background: #0071E3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0077ED;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(0, 113, 227, 0.3);
+        }
+
+        .btn-secondary {
+            background: #F5F5F7;
+            color: #1D1D1F;
+        }
+
+        .output {
+            margin-top: 32px;
+            padding: 24px;
+            background: #F5F5F7;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .output.show {
+            display: block;
+        }
+
+        .output h3 {
+            margin-bottom: 16px;
+            color: #0071E3;
+        }
+
+        .output pre {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .success-message {
+            color: #006B3D;
+            margin-top: 12px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quick Entry Form</h1>
+        <p class="subtitle">Manually enter LinkedIn profile information</p>
+
+        <div class="instructions">
+            <strong>How to use:</strong><br>
+            1. Open a LinkedIn profile<br>
+            2. Copy and paste the information into the fields below<br>
+            3. Click "Generate JSON"<br>
+            4. Copy the generated JSON and paste it into the main app
+        </div>
+
+        <form id="quickEntryForm">
+            <div class="form-group">
+                <label for="linkedinUrl">LinkedIn URL *</label>
+                <input type="url" id="linkedinUrl" placeholder="https://www.linkedin.com/in/..." required>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" placeholder="e.g., Jacob Neplokh" required>
+            </div>
+
+            <div class="form-group">
+                <label for="headline">Headline</label>
+                <textarea id="headline" placeholder="e.g., Student at University of Chicago"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location</label>
+                <input type="text" id="location" placeholder="e.g., San Francisco, California, United States">
+            </div>
+
+            <div class="form-group">
+                <label for="school">School/University *</label>
+                <input type="text" id="school" placeholder="e.g., University of Chicago" required>
+            </div>
+
+            <div class="form-group">
+                <label for="about">About</label>
+                <textarea id="about" placeholder="Copy the About section text here (optional)"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="experience">Experience (one per line)</label>
+                <textarea id="experience" rows="4" placeholder="Format: Job Title | Company | Duration&#10;e.g., Software Intern | Google | Jun 2023 - Aug 2023"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="education">Education (one per line)</label>
+                <textarea id="education" rows="3" placeholder="Format: School | Degree | Duration&#10;e.g., University of Chicago | Bachelor of Arts | 2021 - 2025"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Generate JSON</button>
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('quickEntryForm').reset()">Clear Form</button>
+        </form>
+
+        <div class="output" id="output">
+            <h3>Generated JSON</h3>
+            <pre id="jsonOutput"></pre>
+            <button class="btn btn-primary" onclick="copyToClipboard()">Copy to Clipboard</button>
+            <div class="success-message" id="copySuccess" style="display: none;">✓ Copied to clipboard!</div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('quickEntryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const data = {
+                timestamp: new Date().toISOString(),
+                url: document.getElementById('linkedinUrl').value,
+                name: document.getElementById('name').value,
+                headline: document.getElementById('headline').value,
+                location: document.getElementById('location').value,
+                school: document.getElementById('school').value,
+                about: document.getElementById('about').value,
+                experience: [],
+                education: [],
+                skills: []
+            };
+
+            // Parse experience
+            const expText = document.getElementById('experience').value;
+            if (expText.trim()) {
+                const expLines = expText.split('\n').filter(line => line.trim());
+                expLines.forEach(line => {
+                    const parts = line.split('|').map(p => p.trim());
+                    data.experience.push({
+                        title: parts[0] || '',
+                        company: parts[1] || '',
+                        duration: parts[2] || '',
+                        description: ''
+                    });
+                });
+            }
+
+            // Parse education
+            const eduText = document.getElementById('education').value;
+            if (eduText.trim()) {
+                const eduLines = eduText.split('\n').filter(line => line.trim());
+                eduLines.forEach(line => {
+                    const parts = line.split('|').map(p => p.trim());
+                    data.education.push({
+                        school: parts[0] || '',
+                        degree: parts[1] || '',
+                        duration: parts[2] || ''
+                    });
+                });
+            }
+
+            const jsonOutput = JSON.stringify(data, null, 2);
+            document.getElementById('jsonOutput').textContent = jsonOutput;
+            document.getElementById('output').classList.add('show');
+            document.getElementById('output').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        function copyToClipboard() {
+            const text = document.getElementById('jsonOutput').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const successMsg = document.getElementById('copySuccess');
+                successMsg.style.display = 'block';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 3000);
+            });
+        }
+    </script>
+</body>
+</html>

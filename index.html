@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conference Attendees Database</title>
+    <link rel="stylesheet" href="styles.css?v=58">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Conference Attendees Database</h1>
+            <p class="subtitle">AI-Powered Internal Database Search</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab-highlight"></div>
+            <button class="tab-btn active" data-tab="view">View Attendees</button>
+            <button class="tab-btn" data-tab="collect">Collect Data</button>
+            <button class="tab-btn" data-tab="import">Import/Export</button>
+        </div>
+
+        <!-- Data Collection Tab -->
+        <div class="tab-content" id="collect">
+            <div class="collection-panel">
+                <h2>Add Attendee Profile</h2>
+                <p class="instructions">
+                    <strong>How to use:</strong><br>
+                    1. Open the attendee's LinkedIn profile in a new tab<br>
+                    2. Press F12 (or Cmd+Option+I on Mac) to open DevTools<br>
+                    3. Go to the Console tab<br>
+                    4. Paste the contents of <code>linkedin-extractor.js</code> and press Enter<br>
+                    5. The data will be copied to your clipboard<br>
+                    6. Return here and paste it in the text area below
+                </p>
+
+                <div class="form-group">
+                    <label for="jsonInput">Paste LinkedIn Profile Data:</label>
+                    <textarea id="jsonInput" placeholder='Paste the JSON data here...' rows="10"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="schoolInput">School/University (from Airtable):</label>
+                    <input type="text" id="schoolInput" placeholder="e.g., Stanford University">
+                </div>
+
+                <div class="form-group">
+                    <label for="imageInput">Profile Image URL (optional):</label>
+                    <input type="text" id="imageInput" placeholder="Paste LinkedIn profile image URL here">
+                    <small style="color: #86868B; display: block; margin-top: 4px;">If the extractor didn't capture the image, you can paste the image URL manually</small>
+                </div>
+
+                <div class="form-actions">
+                    <button id="addProfileBtn" class="btn btn-primary">Add Profile to Database</button>
+                    <button id="clearFormBtn" class="btn btn-secondary">Clear Form</button>
+                </div>
+
+                <div id="formStatus" class="status-message"></div>
+
+                <div class="stats">
+                    <h3>Progress</h3>
+                    <p>Total Profiles Collected: <strong id="totalCount">0</strong> / 700</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressBar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Attendees Tab -->
+        <div class="tab-content active" id="view">
+            <div class="view-panel">
+                <h2>Attendee Directory</h2>
+
+                <!-- AI Search -->
+                <div class="ai-search-container">
+                    <div class="ai-search-header">
+                        <div class="ai-icon">✨</div>
+                        <input type="text" id="aiSearchInput" placeholder="Ask AI: 'Find students interested in national security' or 'Who has experience at startups?'" class="ai-search-input">
+                        <button id="aiSearchBtn" class="btn btn-primary">Search</button>
+                        <button id="clearSearchBtn" class="btn btn-secondary" style="display: none;">Clear Results</button>
+                    </div>
+                    <div id="aiSearchStatus" class="ai-search-status"></div>
+                    <div id="aiSearchResults" class="ai-search-results"></div>
+                </div>
+
+                <div class="divider">
+                    <span>or use traditional filters</span>
+                </div>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <input type="text" id="searchInput" placeholder="Search by name, company, school..." class="search-input">
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="schoolFilter">Filter by School:</label>
+                        <select id="schoolFilter">
+                            <option value="">All Schools</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="sortBy">Sort by:</label>
+                        <select id="sortBy">
+                            <option value="name">Name (A-Z)</option>
+                            <option value="school">School</option>
+                            <option value="recent">Recently Added</option>
+                        </select>
+                    </div>
+
+                    <button id="clearFiltersBtn" class="btn btn-secondary">Clear Filters</button>
+                </div>
+
+                <div id="attendeesList" class="attendees-list">
+                    <!-- Attendee cards will be dynamically inserted here -->
+                </div>
+
+                <div id="noResults" class="no-results" style="display: none;">
+                    No attendees found matching your filters.
+                </div>
+            </div>
+        </div>
+
+        <!-- Import/Export Tab -->
+        <div class="tab-content" id="import">
+            <div class="import-export-panel">
+                <h2>Settings & Data Management</h2>
+
+                <div class="section">
+                    <h3>AI Search Configuration</h3>
+                    <p>Enter your Anthropic API key to enable AI-powered natural language search.</p>
+                    <p style="font-size: 0.875rem; color: #6E6E73; margin-top: 8px;">
+                        Get your API key from <a href="https://console.anthropic.com/" target="_blank" style="color: #0071E3;">console.anthropic.com</a>.
+                        Your key is stored locally and never sent anywhere except Anthropic's API.
+                    </p>
+                    <div style="display: flex; gap: 12px; margin-top: 16px;">
+                        <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="flex: 1;">
+                        <button id="saveApiKeyBtn" class="btn btn-primary">Save Key</button>
+                    </div>
+                    <div id="apiKeyStatus" style="margin-top: 12px; font-size: 0.875rem;"></div>
+                </div>
+
+                <div class="section">
+                    <h3>Export Database</h3>
+                    <p>Download all collected attendee data as JSON.</p>
+                    <button id="exportBtn" class="btn btn-primary">Export to JSON</button>
+                </div>
+
+                <div class="section">
+                    <h3>Import Database</h3>
+                    <p>Upload a previously exported JSON file to restore data.</p>
+                    <input type="file" id="importFile" accept=".json">
+                    <button id="importBtn" class="btn btn-primary">Import from JSON</button>
+                </div>
+
+                <div class="section">
+                    <h3>Clear Database</h3>
+                    <p class="warning">Warning: This will delete all collected attendee data.</p>
+                    <button id="clearDbBtn" class="btn btn-danger">Clear All Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js?v=58"></script>
+</body>
+</html>
