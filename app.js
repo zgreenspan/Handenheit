@@ -8,7 +8,7 @@ class AttendeesDatabase {
             google: '',
             openai: ''
         };
-        this.selectedModel = 'gemini-pro'; // Default model
+        this.selectedModel = 'gemini-3-flash'; // Default model
         this.loadFromLocalStorage();
         this.loadApiKeys();
         this.loadModelPreference();
@@ -127,29 +127,39 @@ class AttendeesDatabase {
         const speedSpan = document.getElementById('modelSpeed');
 
         const modelInfo = {
+            'gemini-3-flash': {
+                quality: '⭐⭐⭐⭐ Excellent (Newest, Dec 2025)',
+                cost: 'First: $0.23, Then: $0.003 each (cache FREE)',
+                speed: 'Very Fast (1-2s)'
+            },
+            'gemini-3-pro': {
+                quality: '⭐⭐⭐⭐⭐ World-class (Best Multimodal)',
+                cost: 'First: $0.90, Then: $0.012 each (cache FREE)',
+                speed: 'Fast (2-3s)'
+            },
+            'claude-sonnet': {
+                quality: '⭐⭐⭐⭐⭐ Excellent (Best Reasoning)',
+                cost: 'First: $1.35, Then: $0.14 each (5min cache, 90% off)',
+                speed: 'Fast (2-3s)'
+            },
             'gemini-pro': {
-                quality: '⭐⭐⭐⭐ Very Good',
-                cost: 'First: $1.25, Then: $0.001 each (cache: 5-60min, FREE)',
+                quality: '⭐⭐⭐⭐ Very Good (1.5 Gen)',
+                cost: 'First: $0.56, Then: $0.010 each (cache FREE)',
                 speed: 'Medium (3-5s)'
             },
             'gemini-flash': {
-                quality: '⭐⭐⭐ Good',
-                cost: 'First: $0.30, Then: $0.003 each (cache: 5-60min, FREE)',
+                quality: '⭐⭐⭐ Good (1.5 Gen)',
+                cost: 'First: $0.14, Then: $0.0025 each (cache FREE)',
                 speed: 'Fast (1-2s)'
-            },
-            'claude-sonnet': {
-                quality: '⭐⭐⭐⭐⭐ Excellent',
-                cost: 'First: $1.35, Then: $0.14 each (cache: 5min, 90% off)',
-                speed: 'Fast (2-3s)'
             },
             'gpt-4o': {
                 quality: '⭐⭐⭐⭐ Very Good',
-                cost: 'First: $2.25, Then: $1.13 each (cache: 5-10min, 50% off)',
+                cost: 'First: $2.25, Then: $1.13 each (5-10min cache, 50% off)',
                 speed: 'Fast (2-3s)'
             },
             'gpt-4o-mini': {
                 quality: '⭐⭐⭐ Good',
-                cost: 'First: $0.07, Then: $0.035 each (cache: 5-10min, 50% off)',
+                cost: 'First: $0.07, Then: $0.035 each (5-10min cache, 50% off)',
                 speed: 'Very Fast (1-2s)'
             }
         };
