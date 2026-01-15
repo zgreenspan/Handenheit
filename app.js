@@ -129,27 +129,27 @@ class AttendeesDatabase {
         const modelInfo = {
             'gemini-pro': {
                 quality: '⭐⭐⭐⭐ Very Good',
-                cost: '~$0.56 per 10 searches (free caching)',
+                cost: '~$0.56/10 searches (5-60min cache)',
                 speed: 'Medium (3-5s)'
             },
             'gemini-flash': {
                 quality: '⭐⭐⭐ Good',
-                cost: '~$0.03 per 10 searches (free caching)',
+                cost: '~$0.03/10 searches (5-60min cache)',
                 speed: 'Fast (1-2s)'
             },
             'claude-sonnet': {
                 quality: '⭐⭐⭐⭐⭐ Excellent',
-                cost: '~$2.57 per 10 searches (with caching)',
+                cost: '~$2.57/10 searches (5min cache, 90% off)',
                 speed: 'Fast (2-3s)'
             },
             'gpt-4o': {
                 quality: '⭐⭐⭐⭐ Very Good',
-                cost: '~$6.19 per 10 searches',
+                cost: '~$6.19/10 searches (5-10min cache, 50% off)',
                 speed: 'Fast (2-3s)'
             },
             'gpt-4o-mini': {
                 quality: '⭐⭐⭐ Good',
-                cost: '~$0.39 per 10 searches',
+                cost: '~$0.39/10 searches (5-10min cache, 50% off)',
                 speed: 'Very Fast (1-2s)'
             }
         };

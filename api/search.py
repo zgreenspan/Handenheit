@@ -175,17 +175,25 @@ Attendee database:
     return urllib.request.urlopen(req, timeout=30)
 
 def call_gemini_api(api_key, search_query, attendees_data, model_id):
-    """Call Google Gemini API"""
+    """Call Google Gemini API
+
+    Note: Gemini's automatic caching works when the same prompt prefix is used.
+    Google caches content automatically when it detects repeated patterns.
+    The cache duration is 5 minutes for free tier, up to 1 hour for paid.
+    """
     base_prompt = get_base_prompt()
 
     url = f'https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent?key={api_key}'
 
     req_data = {
+        'systemInstruction': {
+            'parts': [{
+                'text': 'You are a precise JSON generator. You MUST include a "score" field (integer 0-100) for every match object. This field is absolutely mandatory and cannot be omitted under any circumstances.'
+            }]
+        },
         'contents': [{
             'parts': [{
                 'text': f"""*** CRITICAL: Every match object MUST include a "score" field (integer 0-100). DO NOT OMIT THIS FIELD. ***
-
-You are a precise JSON generator. You MUST include a "score" field (integer 0-100) for every match object.
 
 Attendee database:
 {attendees_data}
@@ -194,7 +202,8 @@ Attendee database:
 
 Search query: "{search_query}"
 """
-            }]
+            }],
+            'role': 'user'
         }],
         'generationConfig': {
             'temperature': 0.5,
@@ -211,7 +220,12 @@ Search query: "{search_query}"
     return urllib.request.urlopen(req, timeout=30)
 
 def call_openai_api(api_key, search_query, attendees_data, model_id):
-    """Call OpenAI API"""
+    """Call OpenAI API with prompt caching
+
+    OpenAI's prompt caching automatically caches the system message and
+    early parts of the conversation. Cache is valid for 5-10 minutes.
+    To maximize caching, we put the large attendee database early in the prompt.
+    """
     base_prompt = get_base_prompt()
 
     req_data = {
@@ -219,16 +233,16 @@ def call_openai_api(api_key, search_query, attendees_data, model_id):
         'messages': [
             {
                 'role': 'system',
-                'content': 'You are a precise JSON generator. You MUST include a "score" field (integer 0-100) for every match object. This field is absolutely mandatory and cannot be omitted under any circumstances.'
-            },
-            {
-                'role': 'user',
-                'content': f"""*** CRITICAL: Every match object MUST include a "score" field (integer 0-100). DO NOT OMIT THIS FIELD. ***
+                'content': f"""You are a precise JSON generator. You MUST include a "score" field (integer 0-100) for every match object. This field is absolutely mandatory and cannot be omitted under any circumstances.
 
 Attendee database:
 {attendees_data}
 
-{base_prompt}
+{base_prompt}"""
+            },
+            {
+                'role': 'user',
+                'content': f"""*** CRITICAL: Every match object MUST include a "score" field (integer 0-100). DO NOT OMIT THIS FIELD. ***
 
 Search query: "{search_query}"
 """
