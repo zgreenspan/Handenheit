@@ -129,12 +129,12 @@ class AttendeesDatabase {
         const modelInfo = {
             'gemini-3-flash': {
                 quality: '⭐⭐⭐⭐ Excellent (Newest, Dec 2025)',
-                cost: 'First: $0.23, Then: $0.003 each (cache FREE)',
+                cost: 'First: $0.23, Then: $0.003 each (60min Pro cache FREE)',
                 speed: 'Very Fast (1-2s)'
             },
             'gemini-3-pro': {
                 quality: '⭐⭐⭐⭐⭐ World-class (Best Multimodal)',
-                cost: 'First: $0.90, Then: $0.012 each (cache FREE)',
+                cost: 'First: $0.90, Then: $0.012 each (60min Pro cache FREE)',
                 speed: 'Fast (2-3s)'
             },
             'claude-sonnet': {
@@ -144,12 +144,12 @@ class AttendeesDatabase {
             },
             'gemini-pro': {
                 quality: '⭐⭐⭐⭐ Very Good (1.5 Gen)',
-                cost: 'First: $0.56, Then: $0.010 each (cache FREE)',
+                cost: 'First: $0.56, Then: $0.010 each (60min Pro cache FREE)',
                 speed: 'Medium (3-5s)'
             },
             'gemini-flash': {
                 quality: '⭐⭐⭐ Good (1.5 Gen)',
-                cost: 'First: $0.14, Then: $0.0025 each (cache FREE)',
+                cost: 'First: $0.14, Then: $0.0025 each (60min Pro cache FREE)',
                 speed: 'Fast (1-2s)'
             },
             'gpt-4o': {
