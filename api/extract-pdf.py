@@ -7,92 +7,48 @@ import base64
 
 def get_extraction_prompt():
     """Returns the prompt for extracting profile data from a resume PDF"""
-    return """Your task is to extract and categorize ALL text from this resume into a structured JSON format.
+    return """STEP 1: First, read through the ENTIRE PDF document from start to finish, including ALL pages. Pay special attention to:
+- The very END of the document (last page, bottom sections)
+- Any paragraphs of prose/essay text anywhere in the document
+- Text that may appear in different formatting or smaller font
 
-CRITICAL RULE: Every piece of text in the resume MUST appear somewhere in your output. Do not skip or omit ANY text. Your job is to categorize and format the text, not to selectively extract it.
-
-Return a JSON object with this structure:
+STEP 2: Extract and categorize ALL text into this JSON structure:
 
 {
   "name": "Full name",
-  "headline": "Current role or professional summary (synthesize from most recent position if not explicit)",
+  "headline": "Current role or professional summary",
   "location": "Location if mentioned",
-  "about": "ALL prose text, essays, personal statements, reflections, postscripts, summaries, or any narrative text that doesn't fit other categories - INCLUDE THE COMPLETE TEXT VERBATIM",
-  "experience": [
-    {
-      "title": "Job title",
-      "company": "Company name",
-      "duration": "Date range (e.g., 'June 2021 - Present')",
-      "description": "Job description/bullet points combined"
-    }
-  ],
-  "education": [
-    {
-      "school": "School name",
-      "degree": "Degree type and field (e.g., 'BA in Philosophy')",
-      "duration": "Date range"
-    }
-  ],
-  "projects": [
-    {
-      "name": "Project name",
-      "role": "Role on project",
-      "duration": "Date range",
-      "description": "Project description"
-    }
-  ],
-  "awards": [
-    {
-      "name": "Award name",
-      "date": "Date or year",
-      "description": "Award description"
-    }
-  ],
-  "skills": ["tool1", "tool2", ...],
-  "languages": ["English (Native)", "Spanish (Conversational)", ...],
-  "interests": ["interest1", "interest2", ...],
-  "organizations": [
-    {
-      "name": "Organization name",
-      "role": "Role",
-      "duration": "Date range"
-    }
-  ],
-  "volunteering": [
-    {
-      "role": "Volunteer role",
-      "organization": "Organization name",
-      "duration": "Date range"
-    }
-  ]
+  "about": "IMPORTANT: Put ALL prose/paragraph text here - personal statements, essays, reflections, postscripts, summaries, mission statements, ANY narrative text",
+  "experience": [{"title": "Job title", "company": "Company name", "duration": "Date range", "description": "Description"}],
+  "education": [{"school": "School name", "degree": "Degree", "duration": "Date range"}],
+  "projects": [{"name": "Project name", "role": "Role", "duration": "Date range", "description": "Description"}],
+  "awards": [{"name": "Award name", "date": "Date", "description": "Description"}],
+  "skills": ["skill1", "skill2"],
+  "languages": ["English (Native)", "Spanish (Conversational)"],
+  "interests": ["interest1", "interest2"],
+  "organizations": [{"name": "Org name", "role": "Role", "duration": "Date range"}],
+  "volunteering": [{"role": "Role", "organization": "Org name", "duration": "Date range"}]
 }
 
-CATEGORIZATION RULES:
-1. "experience" = paid jobs, internships, employment positions
-2. "projects" = side projects, personal projects, academic projects, anything project-based that isn't a job
-3. "education" = schools, degrees, certifications
-4. "skills" = tools, technologies, software, technical skills (Figma, Python, Excel, etc.) - NOT spoken languages
-5. "languages" = spoken/written languages WITH proficiency levels preserved exactly as written (e.g., "English (Native)", "Hebrew (Proficient/B2)", "Latin (Intermediate)")
-6. "interests" = hobbies, extracurriculars, personal interests
-7. "organizations" = clubs, associations, memberships
-8. "volunteering" = volunteer work, community service
-9. "awards" = honors, awards, achievements, scholarships
-10. "about" = THIS IS YOUR CATCH-ALL. Any prose, essays, paragraphs, narrative text, personal statements, reflections, postscripts, summaries, mission statements, or ANY other text that doesn't fit the above categories MUST go here. Include the COMPLETE text word-for-word.
+CATEGORIZATION:
+- experience = jobs, internships, employment
+- projects = personal/academic projects (not jobs)
+- education = schools, degrees
+- skills = technical tools (Figma, Python, etc.) - NOT spoken languages
+- languages = spoken languages WITH proficiency in parentheses exactly as written
+- interests = hobbies, extracurriculars
+- organizations = clubs, memberships
+- volunteering = volunteer work
+- awards = honors, achievements
+- about = ANY AND ALL paragraph/prose text that isn't a bullet point job description. This includes text at the END of the resume.
 
-TEXT PRESERVATION RULES:
-- Preserve original text exactly - do not paraphrase or summarize
-- Keep all parentheticals (e.g., proficiency levels, dates, clarifications)
-- Include full descriptions, not abbreviated versions
-- If text appears at the end of the resume (common for personal statements/postscripts), it MUST be captured in "about"
+CRITICAL RULES:
+1. Preserve ALL text exactly - no paraphrasing
+2. Keep parentheticals like "English (Native)" or "Hebrew (Proficient/B2)"
+3. The "about" field is your CATCH-ALL - if text doesn't fit elsewhere, it goes here
+4. CHECK THE LAST PAGE CAREFULLY - essays/postscripts often appear at the end
 
-SECTION HEADER FLEXIBILITY:
-- Map any section to the appropriate field regardless of what it's titled
-- "Work History" → experience, "Academic Projects" → projects, "Activities" → could be interests or organizations depending on content
-- When in doubt about where text belongs, put it in "about"
-
-FINAL CHECK: Before returning, verify that ALL visible text from the resume appears somewhere in your JSON output. Missing text is a failure.
-
-Return ONLY valid JSON, no markdown code blocks, no explanations."""
+Return ONLY valid JSON, no markdown code blocks."""
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -153,7 +109,7 @@ class handler(BaseHTTPRequestHandler):
 
         req_data = {
             'model': 'claude-sonnet-4-20250514',
-            'max_tokens': 4000,
+            'max_tokens': 8000,
             'messages': [{
                 'role': 'user',
                 'content': [
