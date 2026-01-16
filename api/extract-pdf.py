@@ -67,9 +67,16 @@ IMPORTANT GUIDELINES:
 2. For "experience", only include actual jobs/employment. Put side projects, personal projects in "projects".
 3. For "skills", extract technical skills, tools, programming languages. Keep as simple strings.
 4. For "interests", extract hobbies, extracurriculars, personal interests if mentioned.
-5. For "about", look for personal statements, mission statements, objective sections, or any narrative text about the person.
+5. For "about", look for ANY of the following and include the FULL text:
+   - Personal statements or mission statements
+   - Objective or summary sections
+   - Postscripts, afterwords, or closing essays
+   - "About Me" sections
+   - Any paragraph-length narrative text that describes the person's philosophy, values, goals, or perspective
+   - Text that appears at the end of the resume that isn't part of another structured section
+   This field should capture the person's voice and personality. Include the complete text, not a summary.
 6. Synthesize a "headline" from the most recent/prominent role if not explicitly stated.
-7. Preserve the original text as much as possible - don't paraphrase excessively.
+7. Preserve the original text as much as possible - don't paraphrase or summarize.
 8. If a section header doesn't match exactly (e.g., "Work History" instead of "Experience"), map it to the appropriate field.
 
 Return ONLY valid JSON, no markdown code blocks, no explanations."""
