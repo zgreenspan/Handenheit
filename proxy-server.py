@@ -373,10 +373,6 @@ def proxy_search():
             response = call_gemini_api(api_key, search_query, attendees_data, 'gemini-3-pro-preview')
         elif model == 'gemini-3-flash':
             response = call_gemini_api(api_key, search_query, attendees_data, 'gemini-3-flash-preview')
-        elif model == 'gemini-pro':
-            response = call_gemini_api(api_key, search_query, attendees_data, 'gemini-1.5-pro-latest')
-        elif model == 'gemini-flash':
-            response = call_gemini_api(api_key, search_query, attendees_data, 'gemini-1.5-flash-latest')
         else:
             return jsonify({'error': f'Invalid model: {model}'}), 400
 
@@ -439,7 +435,7 @@ def health():
 
 if __name__ == '__main__':
     print("Starting multi-model proxy server on http://localhost:8000")
-    print("Supported models: claude-sonnet, gemini-3-pro, gemini-3-flash, gemini-pro, gemini-flash")
+    print("Supported models: claude-sonnet, gemini-3-pro, gemini-3-flash")
     print("Make sure to install dependencies: pip install flask requests")
     print("Registered routes:")
     for rule in app.url_map.iter_rules():

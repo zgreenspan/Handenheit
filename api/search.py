@@ -348,10 +348,6 @@ class handler(BaseHTTPRequestHandler):
                 response = call_gemini_api(api_key, search_query, attendees_data, 'gemini-3-pro-preview')
             elif model == 'gemini-3-flash':
                 response = call_gemini_api(api_key, search_query, attendees_data, 'gemini-3-flash-preview')
-            elif model == 'gemini-pro':
-                response = call_gemini_api(api_key, search_query, attendees_data, 'gemini-1.5-pro-latest')
-            elif model == 'gemini-flash':
-                response = call_gemini_api(api_key, search_query, attendees_data, 'gemini-1.5-flash-latest')
             else:
                 self.send_error_response({'error': f'Invalid model: {model}'}, 400)
                 return

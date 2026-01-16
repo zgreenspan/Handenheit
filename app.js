@@ -130,16 +130,6 @@ class AttendeesDatabase {
                 quality: '⭐⭐⭐⭐⭐ Excellent (Best Reasoning)',
                 cost: 'First: $1.35, Then: $0.14 each (5min cache, 90% off)',
                 speed: 'Fast (2-3s)'
-            },
-            'gemini-pro': {
-                quality: '⭐⭐⭐⭐ Very Good (1.5 Gen)',
-                cost: 'First: $0.56, Then: $0.010 each (60min Pro cache FREE)',
-                speed: 'Medium (3-5s)'
-            },
-            'gemini-flash': {
-                quality: '⭐⭐⭐ Good (1.5 Gen)',
-                cost: 'First: $0.14, Then: $0.0025 each (60min Pro cache FREE)',
-                speed: 'Fast (1-2s)'
             }
         };
 
