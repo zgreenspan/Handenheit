@@ -337,6 +337,29 @@ class AttendeesDatabase {
         statusDiv.className = `status-message ${type}`;
     }
 
+    showToast(message, type = 'success') {
+        // Remove any existing toast
+        const existing = document.querySelector('.toast-notification');
+        if (existing) {
+            existing.remove();
+        }
+
+        // Create toast
+        const toast = document.createElement('div');
+        toast.className = `toast-notification ${type}`;
+
+        const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+        toast.innerHTML = `<span class="toast-icon">${icon}</span><span>${message}</span>`;
+
+        document.body.appendChild(toast);
+
+        // Auto-remove after 4 seconds
+        setTimeout(() => {
+            toast.classList.add('hiding');
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+
     clearForm() {
         document.getElementById('jsonInput').value = '';
         document.getElementById('schoolInput').value = '';
@@ -492,12 +515,16 @@ class AttendeesDatabase {
             this.updateStats();
             this.renderAttendees();
 
-            this.showStatus(`Profile for ${profileData.name || 'Unknown'} added successfully!`, 'success');
+            // Show success feedback
+            const name = profileData.name || 'Unknown';
+            this.showStatus(`Profile for ${name} added successfully!`, 'success');
+            this.showToast(`Added: ${name}`, 'success');
             this.clearPdfForm();
 
         } catch (error) {
             console.error('PDF extraction error:', error);
             this.showStatus(`Error: ${error.message}`, 'error');
+            this.showToast(`Failed to extract profile`, 'error');
         }
     }
 
