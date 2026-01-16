@@ -742,11 +742,17 @@ class AttendeesDatabase {
             </div>`
             : '';
 
+        // Handle both string and object formats for about field
         const aboutHTML = attendee.about
-            ? `<div class="attendee-section about-section">
-                <h4>About</h4>
-                <div class="about-text">${this.escapeHtml(attendee.about)}</div>
-            </div>`
+            ? (() => {
+                const isObject = typeof attendee.about === 'object';
+                const title = isObject && attendee.about.title ? attendee.about.title : 'About';
+                const text = isObject ? attendee.about.text : attendee.about;
+                return `<div class="attendee-section about-section">
+                    <h4>${this.escapeHtml(title)}</h4>
+                    <div class="about-text">${this.escapeHtml(text)}</div>
+                </div>`;
+            })()
             : '';
 
         return `
@@ -768,7 +774,6 @@ class AttendeesDatabase {
                         })() : ''}
                     </div>
                 </div>
-                ${aboutHTML}
                 ${experienceHTML}
                 ${educationHTML}
                 ${projectsHTML}
@@ -778,6 +783,7 @@ class AttendeesDatabase {
                 ${skillsHTML}
                 ${languagesHTML}
                 ${interestsHTML}
+                ${aboutHTML}
                 ${attendee.url ? `<a href="${this.escapeHtml(attendee.url)}" target="_blank" class="linkedin-link">View LinkedIn Profile →</a>` : ''}
             </div>
         `;
@@ -1081,11 +1087,17 @@ class AttendeesDatabase {
         // Only show badge on headline if school doesn't match (avoid duplicates)
         const showHeadlineBadge = headlineMatch && !schoolMatch;
 
+        // Handle both string and object formats for about field
         const aboutHTML = attendee.about
-            ? `<div class="attendee-section about-section">
-                <h4>About ${aboutMatch ? createBadge(aboutMatch) : ''}</h4>
-                <div class="about-text">${this.escapeHtml(attendee.about)}</div>
-            </div>`
+            ? (() => {
+                const isObject = typeof attendee.about === 'object';
+                const title = isObject && attendee.about.title ? attendee.about.title : 'About';
+                const text = isObject ? attendee.about.text : attendee.about;
+                return `<div class="attendee-section about-section">
+                    <h4>${this.escapeHtml(title)} ${aboutMatch ? createBadge(aboutMatch) : ''}</h4>
+                    <div class="about-text">${this.escapeHtml(text)}</div>
+                </div>`;
+            })()
             : '';
 
         return `
@@ -1112,7 +1124,6 @@ class AttendeesDatabase {
                     })() : ''}
                 </div>
             </div>
-            ${aboutHTML}
             ${experienceHTML}
             ${educationHTML}
             ${projectsHTML}
@@ -1122,6 +1133,7 @@ class AttendeesDatabase {
             ${skillsHTML}
             ${languagesHTML}
             ${interestsHTML}
+            ${aboutHTML}
             ${attendee.url ? `<a href="${this.escapeHtml(attendee.url)}" target="_blank" class="linkedin-link">View LinkedIn Profile →</a>` : ''}
         `;
     }

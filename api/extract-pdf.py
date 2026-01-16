@@ -18,7 +18,7 @@ STEP 2: Extract and categorize ALL text into this JSON structure:
   "name": "Full name",
   "headline": "Current role or professional summary",
   "location": "Location if mentioned",
-  "about": "IMPORTANT: Put ALL prose/paragraph text here - personal statements, essays, reflections, postscripts, summaries, mission statements, ANY narrative text",
+  "about": {"title": "Original section title if any (e.g., 'Postscript - The Socratic Virtue of a Chief of Staff')", "text": "The full prose text"},
   "experience": [{"title": "Job title", "company": "Company name", "duration": "Date range", "description": "Description"}],
   "education": [{"school": "School name", "degree": "Degree", "duration": "Date range"}],
   "projects": [{"name": "Project name", "role": "Role", "duration": "Date range", "description": "Description"}],
@@ -40,7 +40,7 @@ CATEGORIZATION:
 - organizations = clubs, memberships
 - volunteering = volunteer work
 - awards = honors, achievements
-- about = ANY AND ALL paragraph/prose text that isn't a bullet point job description. This includes text at the END of the resume.
+- about = ANY AND ALL paragraph/prose text that isn't a bullet point job description. This includes text at the END of the resume. PRESERVE the original section title/header if there is one.
 
 CRITICAL RULES:
 1. Preserve ALL text exactly - no paraphrasing
