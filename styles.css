@@ -62,13 +62,14 @@ header h1 {
 
 /* Tabs */
 .tabs {
-    display: inline-flex;
+    display: flex;
     background: white;
     padding: 0 64px;
     gap: 0;
     position: relative;
     align-items: center;
     height: 68px;
+    max-width: 100%;
 }
 
 .tabs::before {
@@ -1145,6 +1146,7 @@ input[type="file"] {
         -ms-overflow-style: none;  /* IE and Edge */
         width: 100%;
         justify-content: flex-start;
+        box-sizing: border-box;
     }
 
     .tabs::-webkit-scrollbar {
@@ -1153,8 +1155,9 @@ input[type="file"] {
 
     .tabs::before {
         left: 20px;
-        right: 20px;
-        width: auto;
+        right: auto;
+        width: calc(100vw - 40px);
+        max-width: calc(100% - 40px);
     }
 
     .tab-btn {
