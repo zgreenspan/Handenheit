@@ -504,6 +504,10 @@ class AttendeesDatabase {
 
             const profileData = await response.json();
 
+            // Debug: log the extracted data
+            console.log('Extracted profile data:', profileData);
+            console.log('About field:', profileData.about);
+
             // Generate ID if not present
             if (!profileData.id) {
                 profileData.id = Date.now().toString();
