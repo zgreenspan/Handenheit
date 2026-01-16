@@ -226,17 +226,41 @@ class AttendeesDatabase {
             const tabsContainer = document.querySelector('.tabs');
             const containerRect = tabsContainer.getBoundingClientRect();
             const btnRect = activeBtn.getBoundingClientRect();
+            const pillBorder = tabsContainer.querySelector('.tabs::before') || tabsContainer;
+
+            // Detect if we're on mobile (width <= 768px)
+            const isMobile = window.innerWidth <= 768;
+            const padding = isMobile ? 20 : 64;
 
             // Calculate position - create equal 1px gaps on left and right
             const btnLeft = btnRect.left - containerRect.left;
             const btnWidth = btnRect.width;
 
-            // Outer bubble is at 64px with 1px border, so inner edge is at 65px
-            // Buttons start at 64px, overlapping the border by 1px
-            // Add 2px to left (1px past border + 1px gap) and subtract 3px from width
-            // (2px for the left shift + 1px for right gap)
-            highlight.style.left = `${btnLeft + 2}px`;
-            highlight.style.width = `${btnWidth - 3}px`;
+            // Calculate the desired position
+            let highlightLeft = btnLeft + 2;
+            let highlightWidth = btnWidth - 3;
+
+            // On mobile, constrain the highlight to stay within the pill border
+            if (isMobile) {
+                const pillLeft = padding; // 20px on mobile
+                const pillRight = containerRect.width - padding; // Container width - 20px
+                const highlightRight = highlightLeft + highlightWidth;
+
+                // If highlight would extend beyond the right edge of the pill, clamp it
+                if (highlightRight > pillRight - 2) {
+                    highlightWidth = pillRight - highlightLeft - 2;
+                }
+
+                // If highlight starts before the left edge of the pill, clamp it
+                if (highlightLeft < pillLeft + 2) {
+                    const diff = (pillLeft + 2) - highlightLeft;
+                    highlightLeft = pillLeft + 2;
+                    highlightWidth = Math.max(highlightWidth - diff, 50); // Minimum 50px width
+                }
+            }
+
+            highlight.style.left = `${highlightLeft}px`;
+            highlight.style.width = `${highlightWidth}px`;
         }
     }
 
