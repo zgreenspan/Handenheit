@@ -1029,6 +1029,22 @@ code {
     white-space: pre-wrap;
 }
 
+.about-section .about-text.collapsed {
+    max-height: 4.8em; /* About 3 lines */
+    overflow: hidden;
+    position: relative;
+}
+
+.about-section .about-text.collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1.6em;
+    background: linear-gradient(transparent, white);
+}
+
 .experience-item,
 .education-item {
     margin-bottom: 16px;

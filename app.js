@@ -715,30 +715,71 @@ class AttendeesDatabase {
             </div>`
             : '';
 
+        const allProjectsHTML = attendee.projects && attendee.projects.length > 0
+            ? attendee.projects.map(proj => `
+                <div class="experience-item">
+                    <div class="item-title">${this.escapeHtml(proj.name)}</div>
+                    ${proj.role ? `<div class="item-company">${this.escapeHtml(proj.role)}</div>` : ''}
+                    ${proj.duration ? `<div class="item-duration">${this.escapeHtml(proj.duration)}</div>` : ''}
+                    ${proj.description ? `<div class="item-description">${this.escapeHtml(proj.description)}</div>` : ''}
+                </div>
+            `).join('')
+            : '';
+
         const projectsHTML = attendee.projects && attendee.projects.length > 0
             ? `<div class="attendee-section">
                 <h4>Projects</h4>
-                ${attendee.projects.map(proj => `
-                    <div class="experience-item">
-                        <div class="item-title">${this.escapeHtml(proj.name)}</div>
-                        ${proj.role ? `<div class="item-company">${this.escapeHtml(proj.role)}</div>` : ''}
-                        ${proj.duration ? `<div class="item-duration">${this.escapeHtml(proj.duration)}</div>` : ''}
-                        ${proj.description ? `<div class="item-description">${this.escapeHtml(proj.description)}</div>` : ''}
+                <div class="projects-list" data-id="projects-${attendee.id}">
+                    ${attendee.projects.slice(0, 2).map(proj => `
+                        <div class="experience-item">
+                            <div class="item-title">${this.escapeHtml(proj.name)}</div>
+                            ${proj.role ? `<div class="item-company">${this.escapeHtml(proj.role)}</div>` : ''}
+                            ${proj.duration ? `<div class="item-duration">${this.escapeHtml(proj.duration)}</div>` : ''}
+                            ${proj.description ? `<div class="item-description">${this.escapeHtml(proj.description)}</div>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+                ${attendee.projects.length > 2 ? `
+                    <button class="expand-btn" onclick="window.db.toggleSection('projects-${attendee.id}')">
+                        Show ${attendee.projects.length - 2} more
+                    </button>
+                    <div class="projects-list-full" data-id="projects-${attendee.id}" style="display: none;">
+                        ${allProjectsHTML}
                     </div>
-                `).join('')}
+                ` : ''}
             </div>`
+            : '';
+
+        const allAwardsHTML = attendee.awards && attendee.awards.length > 0
+            ? attendee.awards.map(award => `
+                <div class="experience-item">
+                    <div class="item-title">${this.escapeHtml(award.name)}</div>
+                    ${award.date ? `<div class="item-duration">${this.escapeHtml(award.date)}</div>` : ''}
+                    ${award.description ? `<div class="item-description">${this.escapeHtml(award.description)}</div>` : ''}
+                </div>
+            `).join('')
             : '';
 
         const awardsHTML = attendee.awards && attendee.awards.length > 0
             ? `<div class="attendee-section">
                 <h4>Awards</h4>
-                ${attendee.awards.map(award => `
-                    <div class="experience-item">
-                        <div class="item-title">${this.escapeHtml(award.name)}</div>
-                        ${award.date ? `<div class="item-duration">${this.escapeHtml(award.date)}</div>` : ''}
-                        ${award.description ? `<div class="item-description">${this.escapeHtml(award.description)}</div>` : ''}
+                <div class="awards-list" data-id="awards-${attendee.id}">
+                    ${attendee.awards.slice(0, 2).map(award => `
+                        <div class="experience-item">
+                            <div class="item-title">${this.escapeHtml(award.name)}</div>
+                            ${award.date ? `<div class="item-duration">${this.escapeHtml(award.date)}</div>` : ''}
+                            ${award.description ? `<div class="item-description">${this.escapeHtml(award.description)}</div>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+                ${attendee.awards.length > 2 ? `
+                    <button class="expand-btn" onclick="window.db.toggleSection('awards-${attendee.id}')">
+                        Show ${attendee.awards.length - 2} more
+                    </button>
+                    <div class="awards-list-full" data-id="awards-${attendee.id}" style="display: none;">
+                        ${allAwardsHTML}
                     </div>
-                `).join('')}
+                ` : ''}
             </div>`
             : '';
 
@@ -748,9 +789,11 @@ class AttendeesDatabase {
                 const isObject = typeof attendee.about === 'object';
                 const title = isObject && attendee.about.title ? attendee.about.title : 'About';
                 const text = isObject ? attendee.about.text : attendee.about;
+                const isLong = text && text.length > 300;
                 return `<div class="attendee-section about-section">
                     <h4>${this.escapeHtml(title)}</h4>
-                    <div class="about-text">${this.escapeHtml(text)}</div>
+                    <div class="about-text ${isLong ? 'collapsed' : ''}" data-id="about-${attendee.id}">${this.escapeHtml(text)}</div>
+                    ${isLong ? `<button class="expand-btn" onclick="window.db.toggleAbout('about-${attendee.id}')">Read more</button>` : ''}
                 </div>`;
             })()
             : '';
@@ -1093,9 +1136,13 @@ class AttendeesDatabase {
                 const isObject = typeof attendee.about === 'object';
                 const title = isObject && attendee.about.title ? attendee.about.title : 'About';
                 const text = isObject ? attendee.about.text : attendee.about;
+                const isLong = text && text.length > 300;
+                // If there's a match in about, don't collapse it
+                const shouldCollapse = isLong && !aboutMatch;
                 return `<div class="attendee-section about-section">
                     <h4>${this.escapeHtml(title)} ${aboutMatch ? createBadge(aboutMatch) : ''}</h4>
-                    <div class="about-text">${this.escapeHtml(text)}</div>
+                    <div class="about-text ${shouldCollapse ? 'collapsed' : ''}" data-id="about-${attendee.id}">${this.escapeHtml(text)}</div>
+                    ${shouldCollapse ? `<button class="expand-btn" onclick="window.db.toggleAbout('about-${attendee.id}')">Read more</button>` : ''}
                 </div>`;
             })()
             : '';
@@ -1258,6 +1305,47 @@ class AttendeesDatabase {
             fullList.style.display = 'none';
             const hiddenCount = this.attendees.find(a => a.id == attendeeId)?.experience?.length - 3;
             if (btn && hiddenCount) btn.textContent = `Show ${hiddenCount} more`;
+        }
+    }
+
+    // Toggle generic section expansion (projects, awards)
+    toggleSection(sectionId) {
+        const prefix = sectionId.split('-')[0]; // e.g., "projects" or "awards"
+        const shortList = document.querySelector(`.${prefix}-list[data-id="${sectionId}"]`);
+        const fullList = document.querySelector(`.${prefix}-list-full[data-id="${sectionId}"]`);
+        const btn = event && event.target ? event.target : null;
+
+        if (!shortList || !fullList) return;
+
+        if (fullList.style.display === 'none') {
+            shortList.style.display = 'none';
+            fullList.style.display = 'block';
+            if (btn) btn.textContent = 'Show less';
+        } else {
+            shortList.style.display = 'block';
+            fullList.style.display = 'none';
+            // Extract attendee ID and section type from sectionId
+            const attendeeId = sectionId.substring(prefix.length + 1);
+            const attendee = this.attendees.find(a => a.id == attendeeId);
+            const items = attendee?.[prefix];
+            const hiddenCount = items ? items.length - 2 : 0;
+            if (btn && hiddenCount) btn.textContent = `Show ${hiddenCount} more`;
+        }
+    }
+
+    // Toggle about section expansion
+    toggleAbout(aboutId) {
+        const aboutText = document.querySelector(`.about-text[data-id="${aboutId}"]`);
+        const btn = event && event.target ? event.target : null;
+
+        if (!aboutText) return;
+
+        if (aboutText.classList.contains('collapsed')) {
+            aboutText.classList.remove('collapsed');
+            if (btn) btn.textContent = 'Show less';
+        } else {
+            aboutText.classList.add('collapsed');
+            if (btn) btn.textContent = 'Read more';
         }
     }
 
