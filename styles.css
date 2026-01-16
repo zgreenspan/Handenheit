@@ -176,7 +176,6 @@ select:focus {
     outline: none;
     border-color: #1D1D1F;
     background: white;
-    box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
 }
 
 textarea {
@@ -380,7 +379,6 @@ code {
 .model-select:focus {
     outline: none;
     border-color: #0071E3;
-    box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
 }
 
 .model-info {
@@ -409,7 +407,6 @@ code {
 .ai-search-input:focus {
     outline: none;
     border-color: #0071E3;
-    box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
 }
 
 .ai-search-input.searching {
@@ -1165,6 +1162,10 @@ input[type="file"] {
         font-size: 0.875rem;
         white-space: nowrap;
         flex-shrink: 0;
+    }
+
+    .tab-highlight {
+        max-width: calc(100vw - 60px);
     }
 
     .tab-content {
