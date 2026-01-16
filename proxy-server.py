@@ -377,10 +377,6 @@ def proxy_search():
             response = call_gemini_api(api_key, search_query, attendees_data, 'gemini-1.5-pro-latest')
         elif model == 'gemini-flash':
             response = call_gemini_api(api_key, search_query, attendees_data, 'gemini-1.5-flash-latest')
-        elif model == 'gpt-4o':
-            response = call_openai_api(api_key, search_query, attendees_data, 'gpt-4o')
-        elif model == 'gpt-4o-mini':
-            response = call_openai_api(api_key, search_query, attendees_data, 'gpt-4o-mini')
         else:
             return jsonify({'error': f'Invalid model: {model}'}), 400
 
@@ -392,8 +388,6 @@ def proxy_search():
             # Parse response based on provider
             if model.startswith('gemini'):
                 response_json = parse_gemini_response(response_json)
-            elif model.startswith('gpt'):
-                response_json = parse_openai_response(response_json)
 
             print("Step 6: Success! Returning response", flush=True)
             return jsonify(response_json), 200
@@ -445,7 +439,7 @@ def health():
 
 if __name__ == '__main__':
     print("Starting multi-model proxy server on http://localhost:8000")
-    print("Supported models: claude-sonnet, gemini-pro, gemini-flash, gpt-4o, gpt-4o-mini")
+    print("Supported models: claude-sonnet, gemini-3-pro, gemini-3-flash, gemini-pro, gemini-flash")
     print("Make sure to install dependencies: pip install flask requests")
     print("Registered routes:")
     for rule in app.url_map.iter_rules():

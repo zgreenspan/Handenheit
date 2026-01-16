@@ -352,10 +352,6 @@ class handler(BaseHTTPRequestHandler):
                 response = call_gemini_api(api_key, search_query, attendees_data, 'gemini-1.5-pro-latest')
             elif model == 'gemini-flash':
                 response = call_gemini_api(api_key, search_query, attendees_data, 'gemini-1.5-flash-latest')
-            elif model == 'gpt-4o':
-                response = call_openai_api(api_key, search_query, attendees_data, 'gpt-4o')
-            elif model == 'gpt-4o-mini':
-                response = call_openai_api(api_key, search_query, attendees_data, 'gpt-4o-mini')
             else:
                 self.send_error_response({'error': f'Invalid model: {model}'}, 400)
                 return
@@ -365,8 +361,6 @@ class handler(BaseHTTPRequestHandler):
             # Parse response based on provider
             if model.startswith('gemini'):
                 result = parse_gemini_response(result)
-            elif model.startswith('gpt'):
-                result = parse_openai_response(result)
 
             self.send_json_response(result, 200)
 

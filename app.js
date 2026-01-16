@@ -5,8 +5,7 @@ class AttendeesDatabase {
         this.attendees = [];
         this.apiKeys = {
             anthropic: '',
-            google: '',
-            openai: ''
+            google: ''
         };
         this.selectedModel = 'gemini-3-flash'; // Default model
         this.loadFromLocalStorage();
@@ -45,7 +44,6 @@ class AttendeesDatabase {
         // Load all API keys
         const anthropicKey = localStorage.getItem('anthropicApiKey');
         const googleKey = localStorage.getItem('googleApiKey');
-        const openaiKey = localStorage.getItem('openaiApiKey');
 
         if (anthropicKey) {
             this.apiKeys.anthropic = anthropicKey;
@@ -56,12 +54,6 @@ class AttendeesDatabase {
         if (googleKey) {
             this.apiKeys.google = googleKey;
             const input = document.getElementById('googleApiKeyInput');
-            if (input) input.value = '••••••••';
-        }
-
-        if (openaiKey) {
-            this.apiKeys.openai = openaiKey;
-            const input = document.getElementById('openaiApiKeyInput');
             if (input) input.value = '••••••••';
         }
 
@@ -95,9 +87,6 @@ class AttendeesDatabase {
         // Validate key format
         if (provider === 'anthropic' && !key.startsWith('sk-ant-')) {
             document.getElementById(statusId).innerHTML = '<span style="color: #FF3B30;">Invalid key format. Should start with sk-ant-</span>';
-            return;
-        } else if (provider === 'openai' && !key.startsWith('sk-')) {
-            document.getElementById(statusId).innerHTML = '<span style="color: #FF3B30;">Invalid key format. Should start with sk-</span>';
             return;
         } else if (provider === 'google' && !key.startsWith('AIza')) {
             document.getElementById(statusId).innerHTML = '<span style="color: #FF3B30;">Invalid key format. Should start with AIza</span>';
@@ -151,16 +140,6 @@ class AttendeesDatabase {
                 quality: '⭐⭐⭐ Good (1.5 Gen)',
                 cost: 'First: $0.14, Then: $0.0025 each (60min Pro cache FREE)',
                 speed: 'Fast (1-2s)'
-            },
-            'gpt-4o': {
-                quality: '⭐⭐⭐⭐ Very Good',
-                cost: 'First: $2.25, Then: $1.13 each (5-10min cache, 50% off)',
-                speed: 'Fast (2-3s)'
-            },
-            'gpt-4o-mini': {
-                quality: '⭐⭐⭐ Good',
-                cost: 'First: $0.07, Then: $0.035 each (5-10min cache, 50% off)',
-                speed: 'Very Fast (1-2s)'
             }
         };
 
@@ -204,7 +183,6 @@ class AttendeesDatabase {
         // API Keys
         document.getElementById('saveAnthropicKeyBtn').addEventListener('click', () => this.saveApiKey('anthropic'));
         document.getElementById('saveGoogleKeyBtn').addEventListener('click', () => this.saveApiKey('google'));
-        document.getElementById('saveOpenaiKeyBtn').addEventListener('click', () => this.saveApiKey('openai'));
 
         // Model selection
         document.getElementById('modelSelect').addEventListener('change', () => this.changeModel());
@@ -906,13 +884,6 @@ class AttendeesDatabase {
             if (!apiKey) {
                 statusDiv.className = 'ai-search-status error';
                 statusDiv.innerHTML = 'Please configure your Google API key in the Import/Export tab first';
-                return;
-            }
-        } else if (this.selectedModel.startsWith('gpt')) {
-            apiKey = this.apiKeys.openai;
-            if (!apiKey) {
-                statusDiv.className = 'ai-search-status error';
-                statusDiv.innerHTML = 'Please configure your OpenAI API key in the Import/Export tab first';
                 return;
             }
         }
