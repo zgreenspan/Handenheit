@@ -7,13 +7,17 @@ import base64
 
 def get_extraction_prompt():
     """Returns the prompt for extracting profile data from a resume PDF"""
-    return """Extract structured profile data from this resume. Return a JSON object with the following structure:
+    return """Your task is to extract and categorize ALL text from this resume into a structured JSON format.
+
+CRITICAL RULE: Every piece of text in the resume MUST appear somewhere in your output. Do not skip or omit ANY text. Your job is to categorize and format the text, not to selectively extract it.
+
+Return a JSON object with this structure:
 
 {
   "name": "Full name",
-  "headline": "Current role or professional summary (synthesize from most recent position)",
+  "headline": "Current role or professional summary (synthesize from most recent position if not explicit)",
   "location": "Location if mentioned",
-  "about": "CRITICAL - See instructions below for what goes here",
+  "about": "ALL prose text, essays, personal statements, reflections, postscripts, summaries, or any narrative text that doesn't fit other categories - INCLUDE THE COMPLETE TEXT VERBATIM",
   "experience": [
     {
       "title": "Job title",
@@ -63,21 +67,30 @@ def get_extraction_prompt():
   ]
 }
 
-IMPORTANT GUIDELINES:
-1. Only include sections that are present in the resume. Omit empty arrays.
-2. For "experience", only include actual jobs/employment. Put side projects, personal projects in "projects".
-3. For "skills", extract tools and technical skills (Figma, Python, Excel, etc.). Do NOT include spoken languages here.
-4. For "languages", extract spoken/written languages WITH their proficiency levels in parentheses. Preserve the EXACT text including parentheticals like "English (Native)", "Hebrew (Proficient/B2)", "Latin (Intermediate)".
-5. For "interests", extract hobbies, extracurriculars, personal interests if mentioned.
-6. **CRITICAL for "about"**: This is the MOST IMPORTANT field. Look for ANY of these and include the COMPLETE text verbatim:
-   - Sections titled "Postscript", "About", "Summary", "Objective", "Personal Statement", "Mission"
-   - Any paragraph of prose/essay text that isn't a bullet-pointed job description
-   - Long-form narrative text at the END of the resume (this is common!)
-   - Philosophical reflections, personal essays, or closing thoughts
-   DO NOT skip this even if it's at the very bottom of the resume. Include the FULL text, word for word.
-7. Synthesize a "headline" from the most recent/prominent role if not explicitly stated.
-8. Preserve the original text as much as possible - don't paraphrase or summarize.
-9. If a section header doesn't match exactly (e.g., "Work History" instead of "Experience"), map it to the appropriate field.
+CATEGORIZATION RULES:
+1. "experience" = paid jobs, internships, employment positions
+2. "projects" = side projects, personal projects, academic projects, anything project-based that isn't a job
+3. "education" = schools, degrees, certifications
+4. "skills" = tools, technologies, software, technical skills (Figma, Python, Excel, etc.) - NOT spoken languages
+5. "languages" = spoken/written languages WITH proficiency levels preserved exactly as written (e.g., "English (Native)", "Hebrew (Proficient/B2)", "Latin (Intermediate)")
+6. "interests" = hobbies, extracurriculars, personal interests
+7. "organizations" = clubs, associations, memberships
+8. "volunteering" = volunteer work, community service
+9. "awards" = honors, awards, achievements, scholarships
+10. "about" = THIS IS YOUR CATCH-ALL. Any prose, essays, paragraphs, narrative text, personal statements, reflections, postscripts, summaries, mission statements, or ANY other text that doesn't fit the above categories MUST go here. Include the COMPLETE text word-for-word.
+
+TEXT PRESERVATION RULES:
+- Preserve original text exactly - do not paraphrase or summarize
+- Keep all parentheticals (e.g., proficiency levels, dates, clarifications)
+- Include full descriptions, not abbreviated versions
+- If text appears at the end of the resume (common for personal statements/postscripts), it MUST be captured in "about"
+
+SECTION HEADER FLEXIBILITY:
+- Map any section to the appropriate field regardless of what it's titled
+- "Work History" → experience, "Academic Projects" → projects, "Activities" → could be interests or organizations depending on content
+- When in doubt about where text belongs, put it in "about"
+
+FINAL CHECK: Before returning, verify that ALL visible text from the resume appears somewhere in your JSON output. Missing text is a failure.
 
 Return ONLY valid JSON, no markdown code blocks, no explanations."""
 
