@@ -279,7 +279,30 @@ def parse_gemini_response(response_json):
             text = text[:-3]
         text = text.strip()
 
-        result_json = json.loads(text)
+        # Try to parse JSON, with fallback repairs for common issues
+        try:
+            result_json = json.loads(text)
+        except json.JSONDecodeError as parse_error:
+            # Try to fix common JSON issues from LLM responses
+            import re
+
+            # Fix unescaped newlines in strings
+            fixed_text = re.sub(r'(?<!\\)\n(?=[^"]*"[^"]*$)', '\\n', text)
+
+            # Try again with fixed text
+            try:
+                result_json = json.loads(fixed_text)
+            except json.JSONDecodeError:
+                # If still failing, try to extract just the JSON object
+                match = re.search(r'\{[\s\S]*\}', text)
+                if match:
+                    try:
+                        result_json = json.loads(match.group())
+                    except json.JSONDecodeError:
+                        # Last resort: return an error response that won't crash the UI
+                        raise parse_error
+                else:
+                    raise parse_error
 
         # Return in Anthropic format
         return {
