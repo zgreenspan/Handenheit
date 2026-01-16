@@ -1101,6 +1101,16 @@ code {
     border: 1px solid #E5E5E5;
 }
 
+.skill-tag.skill-more {
+    background: #E5E5E5;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.skill-tag.skill-more:hover {
+    background: #D1D1D6;
+}
+
 .linkedin-link {
     display: inline-flex;
     align-items: center;

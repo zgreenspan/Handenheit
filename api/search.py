@@ -65,7 +65,7 @@ Return a JSON object with this EXACT structure:
       "relevance": "string",
       "highlights": [
         {
-          "section": "string (experience/education/skills/headline/organizations/volunteering/projects/awards/interests)",
+          "section": "string (experience/education/skills/languages/headline/organizations/volunteering/projects/awards/interests)",
           "index": number (the array index of the item to highlight, e.g., 0 for first experience, 2 for third education),
           "field": "string (optional - which specific field: title/company/school/degree/name/role/organization)",
           "reason": "string (why this specific item matches)",

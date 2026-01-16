@@ -13,7 +13,7 @@ def get_extraction_prompt():
   "name": "Full name",
   "headline": "Current role or professional summary (synthesize from most recent position)",
   "location": "Location if mentioned",
-  "about": "Personal statement, mission statement, or summary section if present",
+  "about": "CRITICAL - See instructions below for what goes here",
   "experience": [
     {
       "title": "Job title",
@@ -44,7 +44,8 @@ def get_extraction_prompt():
       "description": "Award description"
     }
   ],
-  "skills": ["skill1", "skill2", ...],
+  "skills": ["tool1", "tool2", ...],
+  "languages": ["English", "Spanish", ...],
   "interests": ["interest1", "interest2", ...],
   "organizations": [
     {
@@ -65,19 +66,18 @@ def get_extraction_prompt():
 IMPORTANT GUIDELINES:
 1. Only include sections that are present in the resume. Omit empty arrays.
 2. For "experience", only include actual jobs/employment. Put side projects, personal projects in "projects".
-3. For "skills", extract technical skills, tools, programming languages. Keep as simple strings.
-4. For "interests", extract hobbies, extracurriculars, personal interests if mentioned.
-5. For "about", look for ANY of the following and include the FULL text:
-   - Personal statements or mission statements
-   - Objective or summary sections
-   - Postscripts, afterwords, or closing essays
-   - "About Me" sections
-   - Any paragraph-length narrative text that describes the person's philosophy, values, goals, or perspective
-   - Text that appears at the end of the resume that isn't part of another structured section
-   This field should capture the person's voice and personality. Include the complete text, not a summary.
-6. Synthesize a "headline" from the most recent/prominent role if not explicitly stated.
-7. Preserve the original text as much as possible - don't paraphrase or summarize.
-8. If a section header doesn't match exactly (e.g., "Work History" instead of "Experience"), map it to the appropriate field.
+3. For "skills", extract tools and technical skills (Figma, Python, Excel, etc.). Do NOT include spoken languages here.
+4. For "languages", extract spoken/written languages (English, Spanish, Hebrew, Latin, etc.) as simple strings.
+5. For "interests", extract hobbies, extracurriculars, personal interests if mentioned.
+6. **CRITICAL for "about"**: This is the MOST IMPORTANT field. Look for ANY of these and include the COMPLETE text verbatim:
+   - Sections titled "Postscript", "About", "Summary", "Objective", "Personal Statement", "Mission"
+   - Any paragraph of prose/essay text that isn't a bullet-pointed job description
+   - Long-form narrative text at the END of the resume (this is common!)
+   - Philosophical reflections, personal essays, or closing thoughts
+   DO NOT skip this even if it's at the very bottom of the resume. Include the FULL text, word for word.
+7. Synthesize a "headline" from the most recent/prominent role if not explicitly stated.
+8. Preserve the original text as much as possible - don't paraphrase or summarize.
+9. If a section header doesn't match exactly (e.g., "Work History" instead of "Experience"), map it to the appropriate field.
 
 Return ONLY valid JSON, no markdown code blocks, no explanations."""
 

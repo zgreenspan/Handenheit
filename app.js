@@ -653,11 +653,22 @@ class AttendeesDatabase {
         const skillsHTML = attendee.skills && attendee.skills.length > 0
             ? `<div class="attendee-section">
                 <h4>Skills</h4>
-                <div class="skills-list">
+                <div class="skills-list" data-expanded="false" data-id="skills-${attendee.id}">
                     ${attendee.skills.slice(0, 8).map(skill => `
                         <span class="skill-tag">${this.escapeHtml(skill)}</span>
                     `).join('')}
-                    ${attendee.skills.length > 8 ? `<span class="skill-tag">+${attendee.skills.length - 8} more</span>` : ''}
+                    ${attendee.skills.length > 8 ? `<span class="skill-tag skill-more" onclick="window.db.expandSkills('skills-${attendee.id}', ${JSON.stringify(attendee.skills).replace(/'/g, "&#39;")})">+${attendee.skills.length - 8} more</span>` : ''}
+                </div>
+            </div>`
+            : '';
+
+        const languagesHTML = attendee.languages && attendee.languages.length > 0
+            ? `<div class="attendee-section">
+                <h4>Languages</h4>
+                <div class="skills-list">
+                    ${attendee.languages.map(lang => `
+                        <span class="skill-tag">${this.escapeHtml(lang)}</span>
+                    `).join('')}
                 </div>
             </div>`
             : '';
@@ -753,6 +764,7 @@ class AttendeesDatabase {
                 ${volunteeringHTML}
                 ${awardsHTML}
                 ${skillsHTML}
+                ${languagesHTML}
                 ${interestsHTML}
                 ${attendee.url ? `<a href="${this.escapeHtml(attendee.url)}" target="_blank" class="linkedin-link">View LinkedIn Profile →</a>` : ''}
             </div>
@@ -913,12 +925,24 @@ class AttendeesDatabase {
         const skillsHTML = attendee.skills && attendee.skills.length > 0
             ? `<div class="attendee-section">
                 <h4>Skills</h4>
-                <div class="skills-list">
+                <div class="skills-list" data-expanded="false" data-id="skills-${attendee.id}">
                     ${attendee.skills.slice(0, 8).map((skill, skillIndex) => {
                         const match = shouldHighlight('skills', skillIndex);
                         return `<span class="skill-tag">${this.escapeHtml(skill)}${match ? createBadge(match) : ''}</span>`;
                     }).join('')}
-                    ${attendee.skills.length > 8 ? `<span class="skill-tag">+${attendee.skills.length - 8} more</span>` : ''}
+                    ${attendee.skills.length > 8 ? `<span class="skill-tag skill-more" onclick="window.db.expandSkills('skills-${attendee.id}', ${JSON.stringify(attendee.skills).replace(/'/g, "&#39;")})">+${attendee.skills.length - 8} more</span>` : ''}
+                </div>
+            </div>`
+            : '';
+
+        const languagesHTML = attendee.languages && attendee.languages.length > 0
+            ? `<div class="attendee-section">
+                <h4>Languages</h4>
+                <div class="skills-list">
+                    ${attendee.languages.map((lang, langIndex) => {
+                        const match = shouldHighlight('languages', langIndex);
+                        return `<span class="skill-tag">${this.escapeHtml(lang)}${match ? createBadge(match) : ''}</span>`;
+                    }).join('')}
                 </div>
             </div>`
             : '';
@@ -1075,6 +1099,7 @@ class AttendeesDatabase {
             ${volunteeringHTML}
             ${awardsHTML}
             ${skillsHTML}
+            ${languagesHTML}
             ${interestsHTML}
             ${attendee.url ? `<a href="${this.escapeHtml(attendee.url)}" target="_blank" class="linkedin-link">View LinkedIn Profile →</a>` : ''}
         `;
@@ -1084,6 +1109,29 @@ class AttendeesDatabase {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    expandSkills(containerId, skills) {
+        const container = document.querySelector(`[data-id="${containerId}"]`);
+        if (!container) return;
+
+        const isExpanded = container.dataset.expanded === 'true';
+
+        if (isExpanded) {
+            // Collapse: show only first 8
+            container.innerHTML = skills.slice(0, 8).map(skill =>
+                `<span class="skill-tag">${this.escapeHtml(skill)}</span>`
+            ).join('') +
+            `<span class="skill-tag skill-more" onclick="window.db.expandSkills('${containerId}', ${JSON.stringify(skills).replace(/'/g, "&#39;")})">+${skills.length - 8} more</span>`;
+            container.dataset.expanded = 'false';
+        } else {
+            // Expand: show all
+            container.innerHTML = skills.map(skill =>
+                `<span class="skill-tag">${this.escapeHtml(skill)}</span>`
+            ).join('') +
+            `<span class="skill-tag skill-more" onclick="window.db.expandSkills('${containerId}', ${JSON.stringify(skills).replace(/'/g, "&#39;")})">Show less</span>`;
+            container.dataset.expanded = 'true';
+        }
     }
 
     // Get CSS class for elite universities
