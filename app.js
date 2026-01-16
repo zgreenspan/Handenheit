@@ -488,7 +488,7 @@ class AttendeesDatabase {
 
             // Add to database
             this.attendees.push(profileData);
-            await this.saveData();
+            this.saveToLocalStorage();
             this.updateStats();
             this.renderAttendees();
 
