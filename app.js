@@ -161,9 +161,19 @@ class AttendeesDatabase {
             btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
         });
 
-        // Data collection
+        // Data collection - LinkedIn method
         document.getElementById('addProfileBtn').addEventListener('click', () => this.addProfile());
         document.getElementById('clearFormBtn').addEventListener('click', () => this.clearForm());
+
+        // Data collection - PDF method
+        this.setupPdfUpload();
+        document.getElementById('extractPdfBtn').addEventListener('click', () => this.extractFromPdf());
+        document.getElementById('clearPdfFormBtn').addEventListener('click', () => this.clearPdfForm());
+
+        // Collection method tabs
+        document.querySelectorAll('.method-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => this.switchCollectionMethod(e.target.dataset.method));
+        });
 
         // Filters and search
         document.getElementById('searchInput').addEventListener('input', () => this.renderAttendees());
@@ -333,6 +343,175 @@ class AttendeesDatabase {
         document.getElementById('imageInput').value = '';
         document.getElementById('formStatus').className = 'status-message';
         document.getElementById('formStatus').textContent = '';
+    }
+
+    // Collection Method Switching
+    switchCollectionMethod(method) {
+        // Update tabs
+        document.querySelectorAll('.method-tab').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.method === method);
+        });
+
+        // Update content
+        document.querySelectorAll('.method-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`${method}-method`).classList.add('active');
+    }
+
+    // PDF Upload Setup
+    setupPdfUpload() {
+        const uploadArea = document.getElementById('pdfUploadArea');
+        const fileInput = document.getElementById('pdfInput');
+        const placeholder = uploadArea.querySelector('.upload-placeholder');
+        const preview = uploadArea.querySelector('.upload-preview');
+        const fileName = preview.querySelector('.file-name');
+        const removeBtn = preview.querySelector('.remove-file');
+
+        // Click to upload
+        uploadArea.addEventListener('click', (e) => {
+            if (e.target !== removeBtn) {
+                fileInput.click();
+            }
+        });
+
+        // File selected
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                this.showPdfFile(fileInput.files[0]);
+            }
+        });
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            if (e.dataTransfer.files.length > 0 && e.dataTransfer.files[0].type === 'application/pdf') {
+                fileInput.files = e.dataTransfer.files;
+                this.showPdfFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Remove file
+        removeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.clearPdfFile();
+        });
+    }
+
+    showPdfFile(file) {
+        const uploadArea = document.getElementById('pdfUploadArea');
+        const placeholder = uploadArea.querySelector('.upload-placeholder');
+        const preview = uploadArea.querySelector('.upload-preview');
+        const fileName = preview.querySelector('.file-name');
+
+        placeholder.style.display = 'none';
+        preview.style.display = 'flex';
+        fileName.textContent = file.name;
+        uploadArea.classList.add('has-file');
+    }
+
+    clearPdfFile() {
+        const uploadArea = document.getElementById('pdfUploadArea');
+        const fileInput = document.getElementById('pdfInput');
+        const placeholder = uploadArea.querySelector('.upload-placeholder');
+        const preview = uploadArea.querySelector('.upload-preview');
+
+        fileInput.value = '';
+        placeholder.style.display = 'flex';
+        preview.style.display = 'none';
+        uploadArea.classList.remove('has-file');
+    }
+
+    clearPdfForm() {
+        this.clearPdfFile();
+        document.getElementById('pdfSchoolInput').value = '';
+        document.getElementById('formStatus').className = 'status-message';
+        document.getElementById('formStatus').textContent = '';
+    }
+
+    async extractFromPdf() {
+        const fileInput = document.getElementById('pdfInput');
+        const schoolInput = document.getElementById('pdfSchoolInput').value.trim();
+
+        if (!fileInput.files.length) {
+            this.showStatus('Please select a PDF file.', 'error');
+            return;
+        }
+
+        const file = fileInput.files[0];
+
+        // Check file size (10MB limit)
+        if (file.size > 10 * 1024 * 1024) {
+            this.showStatus('File size exceeds 10MB limit.', 'error');
+            return;
+        }
+
+        this.showStatus('Extracting profile data from PDF...', 'info');
+
+        try {
+            // Convert file to base64
+            const base64 = await this.fileToBase64(file);
+
+            // Call API
+            const response = await fetch('/api/extract-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    pdf: base64,
+                    school: schoolInput
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to extract profile');
+            }
+
+            const profileData = await response.json();
+
+            // Generate ID if not present
+            if (!profileData.id) {
+                profileData.id = Date.now().toString();
+            }
+
+            // Add to database
+            this.attendees.push(profileData);
+            await this.saveData();
+            this.updateStats();
+            this.renderAttendees();
+
+            this.showStatus(`Profile for ${profileData.name || 'Unknown'} added successfully!`, 'success');
+            this.clearPdfForm();
+
+        } catch (error) {
+            console.error('PDF extraction error:', error);
+            this.showStatus(`Error: ${error.message}`, 'error');
+        }
+    }
+
+    fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                // Remove the data URL prefix to get just the base64 data
+                const base64 = reader.result.split(',')[1];
+                resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
     }
 
     // Stats

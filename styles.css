@@ -1201,3 +1201,119 @@ input[type="file"] {
         padding: 20px;
     }
 }
+
+/* Collection Method Tabs */
+.collection-method-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    background: #F5F5F7;
+    padding: 4px;
+    border-radius: 10px;
+    width: fit-content;
+}
+
+.method-tab {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #86868B;
+    transition: all 0.2s ease;
+}
+
+.method-tab:hover {
+    color: #1D1D1F;
+}
+
+.method-tab.active {
+    background: white;
+    color: #1D1D1F;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.method-content {
+    display: none;
+}
+
+.method-content.active {
+    display: block;
+}
+
+/* PDF Upload Area */
+.pdf-upload-area {
+    border: 2px dashed #D1D1D6;
+    border-radius: 12px;
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #FAFAFA;
+}
+
+.pdf-upload-area:hover {
+    border-color: #0071E3;
+    background: #F0F7FF;
+}
+
+.pdf-upload-area.drag-over {
+    border-color: #0071E3;
+    background: #E5F0FF;
+}
+
+.pdf-upload-area.has-file {
+    border-style: solid;
+    border-color: #34C759;
+    background: #F0FFF4;
+}
+
+.upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #86868B;
+}
+
+.upload-icon {
+    font-size: 2.5rem;
+}
+
+.upload-hint {
+    font-size: 0.8125rem;
+    color: #AEAEB2;
+}
+
+.upload-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.upload-preview .file-name {
+    font-weight: 500;
+    color: #1D1D1F;
+}
+
+.upload-preview .remove-file {
+    background: #FF3B30;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-preview .remove-file:hover {
+    background: #D70015;
+}
