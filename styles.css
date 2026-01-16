@@ -1172,21 +1172,20 @@ input[type="file"] {
         padding: 24px 20px;
     }
 
-    /* Remove focus effects on mobile */
+    /* Remove all tap highlight effects on mobile */
+    * {
+        -webkit-tap-highlight-color: transparent;
+    }
+
     input[type="text"]:focus,
     textarea:focus,
     select:focus,
     .ai-search-input:focus,
-    .model-select:focus {
+    .model-select:focus,
+    button:focus,
+    .tab-btn:focus,
+    .btn:focus {
         box-shadow: none !important;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    input[type="text"],
-    textarea,
-    select,
-    .ai-search-input,
-    .model-select {
         -webkit-tap-highlight-color: transparent;
     }
 
