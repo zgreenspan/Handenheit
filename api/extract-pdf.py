@@ -45,7 +45,7 @@ def get_extraction_prompt():
     }
   ],
   "skills": ["tool1", "tool2", ...],
-  "languages": ["English", "Spanish", ...],
+  "languages": ["English (Native)", "Spanish (Conversational)", ...],
   "interests": ["interest1", "interest2", ...],
   "organizations": [
     {
@@ -67,7 +67,7 @@ IMPORTANT GUIDELINES:
 1. Only include sections that are present in the resume. Omit empty arrays.
 2. For "experience", only include actual jobs/employment. Put side projects, personal projects in "projects".
 3. For "skills", extract tools and technical skills (Figma, Python, Excel, etc.). Do NOT include spoken languages here.
-4. For "languages", extract spoken/written languages (English, Spanish, Hebrew, Latin, etc.) as simple strings.
+4. For "languages", extract spoken/written languages WITH their proficiency levels in parentheses. Preserve the EXACT text including parentheticals like "English (Native)", "Hebrew (Proficient/B2)", "Latin (Intermediate)".
 5. For "interests", extract hobbies, extracurriculars, personal interests if mentioned.
 6. **CRITICAL for "about"**: This is the MOST IMPORTANT field. Look for ANY of these and include the COMPLETE text verbatim:
    - Sections titled "Postscript", "About", "Summary", "Objective", "Personal Statement", "Mission"
