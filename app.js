@@ -4,12 +4,11 @@ class AttendeesDatabase {
     constructor() {
         this.attendees = [];
         this.selectedModel = 'gemini-3-flash'; // Default model
-        this.loadFromLocalStorage();
         this.loadModelPreference();
         this.initializeEventListeners();
-        this.updateStats();
-        this.renderAttendees();
-        this.updateModelInfo();
+
+        // Load data (either from localStorage or initial profiles)
+        this.initializeDatabase();
 
         // Initialize tab highlight position
         setTimeout(() => this.updateTabHighlight(), 100);
@@ -18,17 +17,90 @@ class AttendeesDatabase {
         window.addEventListener('resize', () => this.updateTabHighlight());
     }
 
+    async initializeDatabase() {
+        // Try to load from localStorage first
+        const hasLocalData = this.loadFromLocalStorage();
+
+        // If no local data, load initial profiles from server
+        if (!hasLocalData) {
+            await this.loadInitialProfiles();
+        }
+
+        // Update UI after data is loaded
+        this.updateStats();
+        this.renderAttendees();
+        this.updateModelInfo();
+    }
+
+    async loadInitialProfiles() {
+        try {
+            console.log('No local data found. Loading initial profiles from server...');
+            const response = await fetch('/data/initial-profiles.json');
+
+            if (!response.ok) {
+                console.log('No initial profiles file found on server. Starting with empty database.');
+                return;
+            }
+
+            const profiles = await response.json();
+
+            if (Array.isArray(profiles) && profiles.length > 0) {
+                this.attendees = profiles;
+                this.saveToLocalStorage();
+                console.log(`Loaded ${profiles.length} initial profiles from server.`);
+
+                // Show a notification to the user
+                this.showNotification(`Loaded ${profiles.length} profiles into your local database.`, 'success');
+            } else {
+                console.log('Initial profiles file is empty.');
+            }
+        } catch (error) {
+            console.error('Error loading initial profiles:', error);
+            // Fail silently - just start with empty database
+        }
+    }
+
+    showNotification(message, type = 'info') {
+        // Create a temporary notification element
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#34A853' : '#0071E3'};
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            font-size: 0.875rem;
+            max-width: 400px;
+            animation: slideIn 0.3s ease-out;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        // Remove after 5 seconds
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease-in';
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    }
+
     // Local Storage Methods
     loadFromLocalStorage() {
         const stored = localStorage.getItem('attendeesDatabase');
         if (stored) {
             try {
                 this.attendees = JSON.parse(stored);
+                return true; // Data was loaded from localStorage
             } catch (e) {
                 console.error('Error loading from localStorage:', e);
                 this.attendees = [];
+                return false;
             }
         }
+        return false; // No data in localStorage
     }
 
     saveToLocalStorage() {

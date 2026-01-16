@@ -2,12 +2,14 @@
 
 This guide explains how to set up your Handenheit deployment with password protection and server-side API keys.
 
-## Security Features
+## Features
 
 Your Handenheit deployment now includes:
 1. **Password Protection**: Users must enter a password to access the site
 2. **Server-Side API Keys**: API keys are stored securely on the server, not in users' browsers
 3. **No Key Exposure**: Users cannot see or extract your API keys
+4. **Pre-loaded Profiles**: New users automatically get a copy of your profiles
+5. **Independent User Data**: Each user's modifications are stored locally in their browser
 
 ## Vercel Environment Variables Setup
 
@@ -167,6 +169,39 @@ If you encounter issues:
 3. Verify all environment variables are set correctly in Vercel
 4. Make sure you redeployed after setting variables
 
+## Updating Pre-loaded Profiles
+
+Your site comes pre-loaded with profiles that new users will automatically receive. Here's how to update them:
+
+### To Add Your Current Profiles:
+
+1. **Export your profiles**:
+   - Visit your site and log in
+   - Go to **Import/Export** tab
+   - Click **Export to JSON**
+   - Save the file
+
+2. **Replace the initial profiles file**:
+   - Open the downloaded JSON file
+   - Copy the entire contents
+   - Open `/data/initial-profiles.json` in your code
+   - Paste the contents (replacing the empty `[]`)
+   - Save the file
+
+3. **Deploy**:
+   - Commit and push to GitHub
+   - Vercel will automatically deploy
+   - New users will now get your profiles
+
+### How It Works:
+
+- **First-time users**: Automatically get all your profiles loaded
+- **Existing users**: Keep their own local data (unaffected by updates)
+- **User independence**: Each user can add/edit/delete profiles locally
+- **Privacy note**: Profiles are publicly accessible at `yourdomain.com/data/initial-profiles.json`
+
+See `/data/README.md` for more details.
+
 ## Summary
 
 You've now set up:
@@ -174,5 +209,6 @@ You've now set up:
 - ✅ Server-side API key storage (secure)
 - ✅ Multi-model AI search (Gemini 3 Flash, Gemini 3 Pro, Claude Sonnet)
 - ✅ Cost-optimized prompt caching
+- ✅ Pre-loaded profiles for new users
 
 Your Handenheit deployment is now secure and ready to use!
