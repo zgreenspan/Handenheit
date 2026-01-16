@@ -1,1 +1,295 @@
-[]
+[
+  {
+    "name": "Jake Greenspan",
+    "headline": "Investor & Entrepreneur",
+    "location": "New York, New York, United States",
+    "image": "https://media.licdn.com/dms/image/v2/C4E03AQHtr5k-JmCKAw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1659615967221?e=1770249600&v=beta&t=3iAkJKF7oX-i52VSnBmaGJ4r5nlx6HtLCtQdVO2Tep8",
+    "school": "University of Chicago",
+    "url": "https://www.linkedin.com/in/jake-greenspan",
+    "experience": [
+      {
+        "title": "Investor",
+        "company": "My own book",
+        "duration": "2005 - Present · 21 yrs 1 mo",
+        "description": "Full-time"
+      },
+      {
+        "title": "Co-Founder",
+        "company": "Skolay",
+        "duration": "Sep 2021 - Present · 4 yrs 5 mos",
+        "description": "Full-time"
+      },
+      {
+        "title": "Fellow",
+        "company": "The Tikvah Fund",
+        "duration": "Jun 2020 - Aug 2021 · 1 yr 3 mos",
+        "description": "Full-time"
+      },
+      {
+        "title": "Fellow",
+        "company": "Instauratio Magna Foundation",
+        "duration": "Sep 2019 - Jun 2020 · 10 mos",
+        "description": ""
+      }
+    ],
+    "education": [
+      {
+        "school": "University of Chicago",
+        "degree": "AB, Fundamentals",
+        "duration": "",
+        "description": "Activities and societies: Phi Beta Kappa | Student Marshal | Leon Golden Classics Prize"
+      }
+    ],
+    "skills": [],
+    "id": 1768450891259.4197,
+    "addedAt": "2026-01-15T04:21:31.259Z"
+  },
+  {
+    "timestamp": "2026-01-15T02:35:00.000Z",
+    "url": "https://www.linkedin.com/in/samantha-greenspan/",
+    "name": "Samantha Greenspan",
+    "headline": "Co-Founder at Skolay",
+    "location": "New York, New York, United States",
+    "about": "",
+    "experience": [
+      {
+        "title": "Co-Founder and COO",
+        "company": "Skolay",
+        "duration": "Sep 2021 - Present · 4 yrs 5 mos",
+        "description": "We make 1:1 conversations happen between readers and writers (journalists, substackers, professors, and more)."
+      }
+    ],
+    "education": [
+      {
+        "school": "Barnard College",
+        "degree": "Bachelor of Arts with Honors, Anthropology",
+        "duration": ""
+      },
+      {
+        "school": "Columbia University",
+        "degree": "Activities and societies: Columbia Effective Altruism (Co-founder and Co-president)",
+        "duration": ""
+      },
+      {
+        "school": "Brown Institute for Media Innovation",
+        "degree": "Magic Grant",
+        "duration": ""
+      }
+    ],
+    "skills": [],
+    "organizations": [
+      {
+        "name": "Columbia Startup Lab",
+        "role": "",
+        "duration": "Sep 2022 - Jul 2024"
+      },
+      {
+        "name": "Columbia University Effective Altruism",
+        "role": "Co-Founder, Co-President",
+        "duration": "Sep 2019 - May 2021"
+      }
+    ],
+    "volunteering": [
+      {
+        "role": "Tutor",
+        "organization": "The Petey Greene Program",
+        "duration": "Jan 2019 - Jan 2020 · 1 yr"
+      },
+      {
+        "role": "Geometry Tutor",
+        "organization": "The Tutoring and Learning Center at Columbia University",
+        "duration": "Feb 2020 - Apr 2020 · 3 mos"
+      }
+    ],
+    "school": "Columbia University",
+    "id": 1768451567429.2654,
+    "addedAt": "2026-01-15T04:32:47.429Z",
+    "image": "https://media.licdn.com/dms/image/v2/C5603AQEN38HcOj7Xmg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1655307256713?e=1770249600&v=beta&t=cNt7J1_k8JlXxWnMVFElSjVHFskJ4p9U30mqd2qtr9s"
+  },
+  {
+    "timestamp": "2026-01-14T18:45:00.000Z",
+    "url": "https://www.linkedin.com/in/jacob-neplokh/",
+    "name": "Jacob Neplokh",
+    "headline": "Student at University of Chicago",
+    "location": "San Francisco, California, United States",
+    "school": "University of Chicago",
+    "about": "",
+    "image": "https://media.licdn.com/dms/image/v2/D4E03AQE7wbyjaYJkaQ/profile-displayphoto-shrink_800_800/B4EZRcgKB_GgAc-/0/1736718724968?e=1770249600&v=beta&t=-5Atei0nL_OLd8ILuUTGw8mqIDLuLSzFOas-EQU7cbE",
+    "experience": [
+      {
+        "title": "Legal Research Intern",
+        "company": "Fluet",
+        "duration": "Oct 2025 - Present · 4 mos",
+        "description": ""
+      },
+      {
+        "title": "Emergent Ventures Grantee",
+        "company": "Mercatus Center at George Mason University",
+        "duration": "Aug 2025 - Present · 6 mos",
+        "description": "Reading and writing about the political theology of international relations"
+      },
+      {
+        "title": "Research Assistant for Professor John P. McCormick",
+        "company": "University of Chicago",
+        "duration": "Nov 2024 - Present · 1 yr 3 mos",
+        "description": "Assisted with the preparation and publication of an academic book on Machiavellian political theory and history"
+      },
+      {
+        "title": "National Security Reporter",
+        "company": "CET Sandbox",
+        "duration": "Nov 2024 - Jun 2025 · 8 mos",
+        "description": "Crafted tailored briefs and white papers on Israeli defense startups, translating complex technical capabilities into clear summaries for both specialist and general audiences"
+      },
+      {
+        "title": "Co-Editor-in-Chief of Solomon Journal",
+        "company": "Tikvah",
+        "duration": "Oct 2022 - Jan 2023 · 9 mos",
+        "description": ""
+      }
+    ],
+    "education": [
+      {
+        "school": "University of Chicago",
+        "degree": "Bachelor of Arts - BA, Fundamentals: Issues and Texts",
+        "duration": "Sep 2023 - Dec 2026"
+      },
+      {
+        "school": "San Francisco University High School",
+        "degree": "High School Diploma",
+        "duration": "Aug 2019 - Jun 2023"
+      }
+    ],
+    "skills": [],
+    "id": 1768525385783.78,
+    "addedAt": "2026-01-16T01:03:05.783Z"
+  },
+  {
+    "timestamp": "2026-01-15T02:40:00.000Z",
+    "url": "https://www.linkedin.com/in/edward-t/",
+    "name": "Ted Tuckman",
+    "headline": "Software Engineering Lead at MongoDB",
+    "location": "New York, New York, United States",
+    "about": "",
+    "image": "https://media.licdn.com/dms/image/v2/C4D03AQFB0yW1o-H7gg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1540247045122?e=1770249600&v=beta&t=j5cTCxGw5Wfim0LbO1GpKtr36VDX9XmOFs1pgfgu5_c",
+    "experience": [
+      {
+        "title": "Software Engineering Lead",
+        "company": "MongoDB",
+        "duration": "Feb 2023 - Present · 3 yrs",
+        "description": "Lead a team of software engineers (8-10) in the Query Integration department. Working on the query system on Atlas Search, Atlas Vector Search, and other user facing query features."
+      },
+      {
+        "title": "Software Engineer",
+        "company": "MongoDB",
+        "duration": "Aug 2018 - Feb 2023 · 4 yrs 7 mos",
+        "description": "New York City Metropolitan Area"
+      },
+      {
+        "title": "Software Engineering Intern",
+        "company": "MongoDB",
+        "duration": "May 2017 - Aug 2017 · 4 mos",
+        "description": "Worked as a member of the Server-Platforms team on server fixes in addition to a project with two other interns. Created the groundwork for Embedded MongoDB to allow for the database to run on more platforms as part of applications. Built an interface between the database and a local client, and removed/worked around server assumptions about the network."
+      },
+      {
+        "title": "Teaching Assistant (CS50/CPSC100)",
+        "company": "Yale University",
+        "duration": "Sep 2015 - Dec 2016 · 1 yr 4 mos",
+        "description": "Taught and conducted discussions in a weekly section to supplement lectures. Graded students in my section. Held weekly office hours open to anyone in the course."
+      },
+      {
+        "title": "Software Engineering Intern",
+        "company": "Twitch",
+        "duration": "May 2016 - Aug 2016 · 4 mos",
+        "description": "San Francisco Bay Area. Built an internal tool to improve the monitoring and analysis of one of the Twitch core systems. Updated other Twitch projects to improve what data would be generated and stored by the new tool."
+      },
+      {
+        "title": "IT Intern",
+        "company": "Revenue Management Solutions",
+        "duration": "Jun 2015 - Aug 2015 · 3 mos",
+        "description": "Greater Tampa Bay Area. Created a new application and updated older RMS applications to allow for easier and more transparent performance tracking for all RMS tools."
+      }
+    ],
+    "education": [
+      {
+        "school": "Yale University",
+        "degree": "Computer Science",
+        "duration": "2014 - 2018"
+      }
+    ],
+    "skills": [],
+    "organizations": [],
+    "volunteering": [
+      {
+        "role": "Council Member",
+        "organization": "The Yale Club of New York City",
+        "duration": "Jun 2023 - Present · 2 yrs 8 mos"
+      }
+    ],
+    "school": "Yale University",
+    "id": 1768525439283.4082,
+    "addedAt": "2026-01-16T01:03:59.283Z"
+  },
+  {
+    "name": "Max Greenspan",
+    "headline": "Forward Deployed Engineer @ Palantir",
+    "location": "Boston, Massachusetts, United States",
+    "school": "Boston University",
+    "url": "https://www.linkedin.com/in/max-greenspan",
+    "image": "https://media.licdn.com/dms/image/v2/D4E03AQFdO7qnQY2zRw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1708302383059?e=1770249600&v=beta&t=ufs5-L-ryakcTUvQ3qsqiJXEtXDOLgyymziRvWuVl1s",
+    "experience": [
+      {
+        "title": "Tech Lead",
+        "company": "Palantir Technologies",
+        "duration": "Nov 2025 - Present · 3 mos",
+        "description": "Full-time, New York, United States"
+      },
+      {
+        "title": "Forward Deployed Software Engineer",
+        "company": "Palantir Technologies",
+        "duration": "Jun 2025 - Nov 2025 · 6 mos",
+        "description": "Full-time"
+      },
+      {
+        "title": "Forward Deployed Software Engineer Intern",
+        "company": "Palantir Technologies",
+        "duration": "Jan 2024 - Aug 2024 · 8 mos",
+        "description": "Internship, New York, New York, United States · On-site"
+      },
+      {
+        "title": "Course Assistant",
+        "company": "Boston University",
+        "duration": "Jan 2023 - Jan 2024 · 1 yr 1 mo",
+        "description": "Boston, Massachusetts, United States · On-site. Probability and Computing, Combinatoric Structures"
+      },
+      {
+        "title": "Software Engineer Intern",
+        "company": "echo3D",
+        "duration": "May 2023 - Aug 2023 · 4 mos",
+        "description": "Internship, New York, New York, United States"
+      },
+      {
+        "title": "Software Developer Intern",
+        "company": "IIIT Hyderabad",
+        "duration": "Jun 2022 - Aug 2022 · 3 mos",
+        "description": "Internship, Hyderabad, Telangana, India"
+      }
+    ],
+    "education": [
+      {
+        "school": "Boston University",
+        "degree": "Bachelor of Arts - BA, Mathematics and Computer Science",
+        "duration": "Sep 2021 - May 2025",
+        "description": "Graduated May 2025 - Summa Cum Laude (3.97 GPA). Coursework: Machine Learning*, Linear Models*, Data Structures and Algorithms, Software Engineering, Probability in Computing, Geometric Algorithms, Computer Systems, Foundations of Data Science, Databases, Competitive Systems, Differential Equations, Linear Algebra, Multivariate Calculus, Optimization Methods of Operations Research*, Stochastic Methods of Operations Research*. Python (Programming Language), Java and +1 skill"
+      },
+      {
+        "school": "Berwick Academy",
+        "degree": "High School Diploma",
+        "duration": "Sep 2017 - May 2021",
+        "description": ""
+      }
+    ],
+    "skills": [],
+    "id": 1768525472616.2314,
+    "addedAt": "2026-01-16T01:04:32.616Z"
+  }
+]
