@@ -1354,15 +1354,70 @@ class AttendeesDatabase {
         const attendee = this.attendees.find(a => a.id == attendeeId);
         const name = attendee ? attendee.name : 'this profile';
 
-        const confirm = window.confirm(`Delete ${name}? This cannot be undone.`);
-
-        if (confirm) {
+        this.showDeleteModal(name, () => {
             this.attendees = this.attendees.filter(a => a.id != attendeeId);
             this.saveToLocalStorage();
             this.updateStats();
             this.renderAttendees();
             this.updateSchoolFilter();
-        }
+        });
+    }
+
+    // Show custom delete confirmation modal
+    showDeleteModal(name, onConfirm) {
+        // Remove any existing modal
+        const existing = document.querySelector('.delete-modal-overlay');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.className = 'delete-modal-overlay';
+        modal.innerHTML = `
+            <div class="delete-modal">
+                <div class="delete-modal-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        <line x1="10" y1="11" x2="10" y2="17"/>
+                        <line x1="14" y1="11" x2="14" y2="17"/>
+                    </svg>
+                </div>
+                <h3>Delete Profile</h3>
+                <p>Are you sure you want to delete <strong>${this.escapeHtml(name)}</strong>? This action cannot be undone.</p>
+                <div class="delete-modal-actions">
+                    <button class="delete-modal-cancel">Cancel</button>
+                    <button class="delete-modal-confirm">Delete</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Focus trap and animations
+        requestAnimationFrame(() => modal.classList.add('visible'));
+
+        const closeModal = () => {
+            modal.classList.remove('visible');
+            setTimeout(() => modal.remove(), 200);
+        };
+
+        modal.querySelector('.delete-modal-cancel').addEventListener('click', closeModal);
+        modal.querySelector('.delete-modal-confirm').addEventListener('click', () => {
+            closeModal();
+            onConfirm();
+        });
+
+        // Close on overlay click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Close on Escape key
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
     }
 
     // AI Search

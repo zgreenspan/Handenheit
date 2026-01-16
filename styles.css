@@ -26,6 +26,108 @@
     }
 }
 
+/* Delete Modal */
+.delete-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: background 0.2s ease;
+}
+
+.delete-modal-overlay.visible {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.delete-modal {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 360px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    opacity: 0;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.delete-modal-overlay.visible .delete-modal {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.delete-modal-icon {
+    width: 48px;
+    height: 48px;
+    background: #FEE2E2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    color: #DC2626;
+}
+
+.delete-modal h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1D1D1F;
+    margin-bottom: 8px;
+}
+
+.delete-modal p {
+    font-size: 0.875rem;
+    color: #6E6E73;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.delete-modal p strong {
+    color: #1D1D1F;
+}
+
+.delete-modal-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.delete-modal-actions button {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.delete-modal-cancel {
+    background: #F5F5F7;
+    border: none;
+    color: #1D1D1F;
+}
+
+.delete-modal-cancel:hover {
+    background: #E8E8ED;
+}
+
+.delete-modal-confirm {
+    background: #DC2626;
+    border: none;
+    color: white;
+}
+
+.delete-modal-confirm:hover {
+    background: #B91C1C;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background: white;
