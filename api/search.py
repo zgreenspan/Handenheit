@@ -328,17 +328,31 @@ class handler(BaseHTTPRequestHandler):
             body = self.rfile.read(content_length)
             data = json.loads(body.decode('utf-8'))
 
-            api_key = data.get('apiKey')
             search_query = data.get('query')
             attendees_data = data.get('attendees')
-            model = data.get('model', 'gemini-pro')  # Default to Gemini Pro
+            model = data.get('model', 'gemini-3-flash')  # Default to Gemini 3 Flash
 
-            if not api_key:
-                self.send_error_response({'error': 'API key is required'}, 400)
-                return
+            # Get API keys from environment variables
+            google_api_key = os.environ.get('GOOGLE_API_KEY', '')
+            anthropic_api_key = os.environ.get('ANTHROPIC_API_KEY', '')
 
             if not search_query:
                 self.send_error_response({'error': 'Search query is required'}, 400)
+                return
+
+            # Determine which API key to use
+            if model == 'claude-sonnet':
+                if not anthropic_api_key:
+                    self.send_error_response({'error': 'Anthropic API key not configured on server'}, 500)
+                    return
+                api_key = anthropic_api_key
+            elif model.startswith('gemini'):
+                if not google_api_key:
+                    self.send_error_response({'error': 'Google API key not configured on server'}, 500)
+                    return
+                api_key = google_api_key
+            else:
+                self.send_error_response({'error': f'Invalid model: {model}'}, 400)
                 return
 
             # Call the appropriate API based on model

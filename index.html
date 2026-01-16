@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Handenheit</title>
     <link rel="stylesheet" href="styles.css?v=58">
+    <script>
+        // Check authentication before loading page
+        if (sessionStorage.getItem('handenheit_auth') !== 'true') {
+            window.location.href = 'auth.html';
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -140,11 +146,8 @@
                 <h2>Settings & Data Management</h2>
 
                 <div class="section">
-                    <h3>AI Model Configuration</h3>
-                    <p>Configure API keys for different AI models. Only add keys for models you plan to use.</p>
-                    <p style="font-size: 0.875rem; color: #6E6E73; margin-top: 8px;">
-                        All keys are stored locally in your browser and only sent to their respective AI providers.
-                    </p>
+                    <h3>AI Model Information</h3>
+                    <p>API keys are securely stored on the server. Search costs are optimized with prompt caching.</p>
 
                     <div style="background: #FFF9E6; padding: 16px; border-radius: 8px; margin-top: 16px; border-left: 4px solid #FFB800;">
                         <h4 style="font-size: 0.9375rem; margin-bottom: 8px; color: #1D1D1F;">📊 Cost Estimates</h4>
@@ -164,39 +167,13 @@
                         </p>
                     </div>
 
-                    <!-- Google Gemini API Key (Default) -->
-                    <div style="margin-top: 24px;">
-                        <h4 style="font-size: 1rem; margin-bottom: 8px;">
-                            <span style="background: linear-gradient(135deg, #4285F4, #34A853, #FBBC05, #EA4335); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 600;">Google Gemini</span>
-                            <span style="background: #34A853; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px;">Recommended</span>
-                        </h4>
-                        <p style="font-size: 0.875rem; color: #6E6E73; margin-bottom: 12px;">
-                            Get your API key from <a href="https://aistudio.google.com/apikey" target="_blank" style="color: #0071E3;">aistudio.google.com/apikey</a><br>
-                            <strong>Gemini 3 Flash:</strong> First: $0.23, Then: $0.003 each | <strong>Gemini 3 Pro:</strong> First: $0.90, Then: $0.012 each<br>
-                            <strong>Cache:</strong> 60min Pro / 5min Free (FREE!) | <strong>Quality:</strong> ⭐⭐⭐⭐⭐ to ⭐⭐⭐⭐ Excellent
-                        </p>
-                        <div style="display: flex; gap: 12px;">
-                            <input type="password" id="googleApiKeyInput" placeholder="AIza..." style="flex: 1;">
-                            <button id="saveGoogleKeyBtn" class="btn btn-primary">Save Key</button>
+                    <div style="background: #E8F4F8; padding: 16px; border-radius: 8px; margin-top: 16px; border-left: 4px solid #0071E3;">
+                        <h4 style="font-size: 0.9375rem; margin-bottom: 8px; color: #1D1D1F;">🤖 Available Models</h4>
+                        <div style="font-size: 0.8125rem; color: #6E6E73; line-height: 1.8;">
+                            <p><strong>Gemini 3 Flash</strong> (Recommended): First $0.23, Then $0.003 each | Cache: 60min Pro (FREE!)</p>
+                            <p><strong>Gemini 3 Pro</strong> (Best Multimodal): First $0.90, Then $0.012 each | Cache: 60min Pro (FREE!)</p>
+                            <p><strong>Claude Sonnet</strong> (Best Reasoning): First $1.35, Then $0.14 each | Cache: 5min (90% off)</p>
                         </div>
-                        <div id="googleApiKeyStatus" style="margin-top: 8px; font-size: 0.875rem;"></div>
-                    </div>
-
-                    <!-- Anthropic Claude API Key -->
-                    <div style="margin-top: 24px;">
-                        <h4 style="font-size: 1rem; margin-bottom: 8px;">
-                            <span style="color: #D97757; font-weight: 600;">Anthropic Claude</span>
-                            <span style="background: #D97757; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-left: 8px;">Best Quality</span>
-                        </h4>
-                        <p style="font-size: 0.875rem; color: #6E6E73; margin-bottom: 12px;">
-                            Get your API key from <a href="https://console.anthropic.com/" target="_blank" style="color: #0071E3;">console.anthropic.com</a><br>
-                            <strong>Cost:</strong> First: $1.35, Then: $0.14 each | <strong>Cache:</strong> 5min (90% off) | <strong>Quality:</strong> ⭐⭐⭐⭐⭐ Excellent
-                        </p>
-                        <div style="display: flex; gap: 12px;">
-                            <input type="password" id="anthropicApiKeyInput" placeholder="sk-ant-..." style="flex: 1;">
-                            <button id="saveAnthropicKeyBtn" class="btn btn-primary">Save Key</button>
-                        </div>
-                        <div id="anthropicApiKeyStatus" style="margin-top: 8px; font-size: 0.875rem;"></div>
                     </div>
                 </div>
 

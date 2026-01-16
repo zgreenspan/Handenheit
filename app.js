@@ -3,13 +3,8 @@
 class AttendeesDatabase {
     constructor() {
         this.attendees = [];
-        this.apiKeys = {
-            anthropic: '',
-            google: ''
-        };
         this.selectedModel = 'gemini-3-flash'; // Default model
         this.loadFromLocalStorage();
-        this.loadApiKeys();
         this.loadModelPreference();
         this.initializeEventListeners();
         this.updateStats();
@@ -40,30 +35,6 @@ class AttendeesDatabase {
         localStorage.setItem('attendeesDatabase', JSON.stringify(this.attendees));
     }
 
-    loadApiKeys() {
-        // Load all API keys
-        const anthropicKey = localStorage.getItem('anthropicApiKey');
-        const googleKey = localStorage.getItem('googleApiKey');
-
-        if (anthropicKey) {
-            this.apiKeys.anthropic = anthropicKey;
-            const input = document.getElementById('anthropicApiKeyInput');
-            if (input) input.value = '••••••••';
-        }
-
-        if (googleKey) {
-            this.apiKeys.google = googleKey;
-            const input = document.getElementById('googleApiKeyInput');
-            if (input) input.value = '••••••••';
-        }
-
-        // Backwards compatibility: load old single API key as anthropic key
-        const oldKey = localStorage.getItem('anthropicApiKey');
-        if (oldKey && !this.apiKeys.anthropic) {
-            this.apiKeys.anthropic = oldKey;
-        }
-    }
-
     loadModelPreference() {
         const stored = localStorage.getItem('selectedModel');
         if (stored) {
@@ -71,36 +42,6 @@ class AttendeesDatabase {
             const select = document.getElementById('modelSelect');
             if (select) select.value = stored;
         }
-    }
-
-    saveApiKey(provider) {
-        const inputId = `${provider}ApiKeyInput`;
-        const statusId = `${provider}ApiKeyStatus`;
-        const input = document.getElementById(inputId);
-        const key = input.value.trim();
-
-        if (!key || key === '••••••••') {
-            document.getElementById(statusId).innerHTML = '<span style="color: #FF3B30;">Please enter a valid API key</span>';
-            return;
-        }
-
-        // Validate key format
-        if (provider === 'anthropic' && !key.startsWith('sk-ant-')) {
-            document.getElementById(statusId).innerHTML = '<span style="color: #FF3B30;">Invalid key format. Should start with sk-ant-</span>';
-            return;
-        } else if (provider === 'google' && !key.startsWith('AIza')) {
-            document.getElementById(statusId).innerHTML = '<span style="color: #FF3B30;">Invalid key format. Should start with AIza</span>';
-            return;
-        }
-
-        this.apiKeys[provider] = key;
-        localStorage.setItem(`${provider}ApiKey`, key);
-        input.value = '••••••••';
-        document.getElementById(statusId).innerHTML = '<span style="color: #006B3D;">✓ API key saved successfully</span>';
-
-        setTimeout(() => {
-            document.getElementById(statusId).innerHTML = '';
-        }, 3000);
     }
 
     changeModel() {
@@ -169,10 +110,6 @@ class AttendeesDatabase {
         document.getElementById('exportBtn').addEventListener('click', () => this.exportData());
         document.getElementById('importBtn').addEventListener('click', () => this.importData());
         document.getElementById('clearDbBtn').addEventListener('click', () => this.clearDatabase());
-
-        // API Keys
-        document.getElementById('saveAnthropicKeyBtn').addEventListener('click', () => this.saveApiKey('anthropic'));
-        document.getElementById('saveGoogleKeyBtn').addEventListener('click', () => this.saveApiKey('google'));
 
         // Model selection
         document.getElementById('modelSelect').addEventListener('change', () => this.changeModel());
@@ -860,24 +797,6 @@ class AttendeesDatabase {
             return;
         }
 
-        // Determine which API key to use based on selected model
-        let apiKey = '';
-        if (this.selectedModel === 'claude-sonnet') {
-            apiKey = this.apiKeys.anthropic;
-            if (!apiKey) {
-                statusDiv.className = 'ai-search-status error';
-                statusDiv.innerHTML = 'Please configure your Anthropic API key in the Import/Export tab first';
-                return;
-            }
-        } else if (this.selectedModel.startsWith('gemini')) {
-            apiKey = this.apiKeys.google;
-            if (!apiKey) {
-                statusDiv.className = 'ai-search-status error';
-                statusDiv.innerHTML = 'Please configure your Google API key in the Import/Export tab first';
-                return;
-            }
-        }
-
         if (this.attendees.length === 0) {
             statusDiv.className = 'ai-search-status error';
             statusDiv.textContent = 'No attendees in database yet';
@@ -904,7 +823,6 @@ class AttendeesDatabase {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    apiKey: apiKey,
                     model: this.selectedModel,
                     query: query,
                     attendees: JSON.stringify(this.attendees, null, 2)

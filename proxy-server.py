@@ -349,20 +349,31 @@ def proxy_search():
         data = request.get_json(force=True)
         print(f"Step 2: Got data, keys: {list(data.keys())}", flush=True)
 
-        api_key = data.get('apiKey')
         search_query = data.get('query')
         attendees_data = data.get('attendees')
-        model = data.get('model', 'gemini-pro')  # Default to Gemini Pro
+        model = data.get('model', 'gemini-3-flash')  # Default to Gemini 3 Flash
 
-        print(f"Step 3: Model: {model}, API key present: {bool(api_key)}, Query: {search_query[:50] if search_query else None}", flush=True)
+        # Get API keys from environment variables
+        google_api_key = os.environ.get('GOOGLE_API_KEY', '')
+        anthropic_api_key = os.environ.get('ANTHROPIC_API_KEY', '')
 
-        if not api_key:
-            print("ERROR: No API key provided", flush=True)
-            return jsonify({'error': 'API key is required'}), 400
+        print(f"Step 3: Model: {model}, Google key present: {bool(google_api_key)}, Anthropic key present: {bool(anthropic_api_key)}, Query: {search_query[:50] if search_query else None}", flush=True)
 
         if not search_query:
             print("ERROR: No search query provided", flush=True)
             return jsonify({'error': 'Search query is required'}), 400
+
+        # Determine which API key to use
+        if model == 'claude-sonnet':
+            if not anthropic_api_key:
+                return jsonify({'error': 'Anthropic API key not configured on server'}), 500
+            api_key = anthropic_api_key
+        elif model.startswith('gemini'):
+            if not google_api_key:
+                return jsonify({'error': 'Google API key not configured on server'}), 500
+            api_key = google_api_key
+        else:
+            return jsonify({'error': f'Invalid model: {model}'}), 400
 
         # Call the appropriate API based on model
         print(f"Step 4: Calling {model} API...", flush=True)
