@@ -1022,6 +1022,13 @@ code {
     letter-spacing: 0.05em;
 }
 
+.about-section .about-text {
+    font-size: 0.875rem;
+    color: #1D1D1F;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
 .experience-item,
 .education-item {
     margin-bottom: 16px;

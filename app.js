@@ -742,6 +742,13 @@ class AttendeesDatabase {
             </div>`
             : '';
 
+        const aboutHTML = attendee.about
+            ? `<div class="attendee-section about-section">
+                <h4>About</h4>
+                <div class="about-text">${this.escapeHtml(attendee.about)}</div>
+            </div>`
+            : '';
+
         return `
             <div class="attendee-card">
                 <button class="delete-btn" onclick="window.db.deleteAttendee('${attendee.id}')" title="Delete profile">×</button>
@@ -761,6 +768,7 @@ class AttendeesDatabase {
                         })() : ''}
                     </div>
                 </div>
+                ${aboutHTML}
                 ${experienceHTML}
                 ${educationHTML}
                 ${projectsHTML}
@@ -1068,9 +1076,17 @@ class AttendeesDatabase {
 
         const headlineMatch = shouldHighlight('headline');
         const schoolMatch = shouldHighlight('school');
+        const aboutMatch = shouldHighlight('about');
 
         // Only show badge on headline if school doesn't match (avoid duplicates)
         const showHeadlineBadge = headlineMatch && !schoolMatch;
+
+        const aboutHTML = attendee.about
+            ? `<div class="attendee-section about-section">
+                <h4>About ${aboutMatch ? createBadge(aboutMatch) : ''}</h4>
+                <div class="about-text">${this.escapeHtml(attendee.about)}</div>
+            </div>`
+            : '';
 
         return `
             <button class="delete-btn" onclick="window.db.deleteAttendee('${attendee.id}')" title="Delete profile">×</button>
@@ -1096,6 +1112,7 @@ class AttendeesDatabase {
                     })() : ''}
                 </div>
             </div>
+            ${aboutHTML}
             ${experienceHTML}
             ${educationHTML}
             ${projectsHTML}
