@@ -456,6 +456,18 @@ class AttendeesDatabase {
             </div>`
             : '';
 
+        const interestsHTML = attendee.interests && attendee.interests.length > 0
+            ? `<div class="attendee-section">
+                <h4>Interests</h4>
+                <div class="skills-list">
+                    ${attendee.interests.slice(0, 8).map(interest => `
+                        <span class="skill-tag">${this.escapeHtml(interest)}</span>
+                    `).join('')}
+                    ${attendee.interests.length > 8 ? `<span class="skill-tag">+${attendee.interests.length - 8} more</span>` : ''}
+                </div>
+            </div>`
+            : '';
+
         const organizationsHTML = attendee.organizations && attendee.organizations.length > 0
             ? `<div class="attendee-section">
                 <h4>Organizations</h4>
@@ -482,6 +494,33 @@ class AttendeesDatabase {
             </div>`
             : '';
 
+        const projectsHTML = attendee.projects && attendee.projects.length > 0
+            ? `<div class="attendee-section">
+                <h4>Projects</h4>
+                ${attendee.projects.map(proj => `
+                    <div class="experience-item">
+                        <div class="item-title">${this.escapeHtml(proj.name)}</div>
+                        ${proj.role ? `<div class="item-company">${this.escapeHtml(proj.role)}</div>` : ''}
+                        ${proj.duration ? `<div class="item-duration">${this.escapeHtml(proj.duration)}</div>` : ''}
+                        ${proj.description ? `<div class="item-description">${this.escapeHtml(proj.description)}</div>` : ''}
+                    </div>
+                `).join('')}
+            </div>`
+            : '';
+
+        const awardsHTML = attendee.awards && attendee.awards.length > 0
+            ? `<div class="attendee-section">
+                <h4>Awards</h4>
+                ${attendee.awards.map(award => `
+                    <div class="experience-item">
+                        <div class="item-title">${this.escapeHtml(award.name)}</div>
+                        ${award.date ? `<div class="item-duration">${this.escapeHtml(award.date)}</div>` : ''}
+                        ${award.description ? `<div class="item-description">${this.escapeHtml(award.description)}</div>` : ''}
+                    </div>
+                `).join('')}
+            </div>`
+            : '';
+
         return `
             <div class="attendee-card">
                 <button class="delete-btn" onclick="window.db.deleteAttendee('${attendee.id}')" title="Delete profile">×</button>
@@ -503,9 +542,12 @@ class AttendeesDatabase {
                 </div>
                 ${experienceHTML}
                 ${educationHTML}
+                ${projectsHTML}
                 ${organizationsHTML}
                 ${volunteeringHTML}
+                ${awardsHTML}
                 ${skillsHTML}
+                ${interestsHTML}
                 ${attendee.url ? `<a href="${this.escapeHtml(attendee.url)}" target="_blank" class="linkedin-link">View LinkedIn Profile →</a>` : ''}
             </div>
         `;
@@ -675,6 +717,19 @@ class AttendeesDatabase {
             </div>`
             : '';
 
+        const interestsHTML = attendee.interests && attendee.interests.length > 0
+            ? `<div class="attendee-section">
+                <h4>Interests</h4>
+                <div class="skills-list">
+                    ${attendee.interests.slice(0, 8).map((interest, interestIndex) => {
+                        const match = shouldHighlight('interests', interestIndex);
+                        return `<span class="skill-tag">${this.escapeHtml(interest)}${match ? createBadge(match) : ''}</span>`;
+                    }).join('')}
+                    ${attendee.interests.length > 8 ? `<span class="skill-tag">+${attendee.interests.length - 8} more</span>` : ''}
+                </div>
+            </div>`
+            : '';
+
         const organizationsHTML = attendee.organizations && attendee.organizations.length > 0
             ? `<div class="attendee-section">
                 <h4>Organizations</h4>
@@ -725,6 +780,58 @@ class AttendeesDatabase {
             </div>`
             : '';
 
+        const projectsHTML = attendee.projects && attendee.projects.length > 0
+            ? `<div class="attendee-section">
+                <h4>Projects</h4>
+                ${attendee.projects.map((proj, projIndex) => {
+                    const nameMatch = shouldHighlight('projects', projIndex, 'name');
+                    const roleMatch = shouldHighlight('projects', projIndex, 'role');
+                    const descMatch = shouldHighlight('projects', projIndex, 'description');
+                    const anyMatch = shouldHighlight('projects', projIndex, 'all');
+                    const showBadge = (nameMatch || roleMatch || descMatch || anyMatch)
+                        ? createBadge(nameMatch || roleMatch || descMatch || anyMatch)
+                        : '';
+
+                    return `
+                        <div class="experience-item">
+                            <div class="item-title">
+                                ${this.escapeHtml(proj.name)}
+                                ${showBadge}
+                            </div>
+                            ${proj.role ? `<div class="item-company">${this.escapeHtml(proj.role)}</div>` : ''}
+                            ${proj.duration ? `<div class="item-duration">${this.escapeHtml(proj.duration)}</div>` : ''}
+                            ${proj.description ? `<div class="item-description">${this.escapeHtml(proj.description)}</div>` : ''}
+                        </div>
+                    `;
+                }).join('')}
+            </div>`
+            : '';
+
+        const awardsHTML = attendee.awards && attendee.awards.length > 0
+            ? `<div class="attendee-section">
+                <h4>Awards</h4>
+                ${attendee.awards.map((award, awardIndex) => {
+                    const nameMatch = shouldHighlight('awards', awardIndex, 'name');
+                    const descMatch = shouldHighlight('awards', awardIndex, 'description');
+                    const anyMatch = shouldHighlight('awards', awardIndex, 'all');
+                    const showBadge = (nameMatch || descMatch || anyMatch)
+                        ? createBadge(nameMatch || descMatch || anyMatch)
+                        : '';
+
+                    return `
+                        <div class="experience-item">
+                            <div class="item-title">
+                                ${this.escapeHtml(award.name)}
+                                ${showBadge}
+                            </div>
+                            ${award.date ? `<div class="item-duration">${this.escapeHtml(award.date)}</div>` : ''}
+                            ${award.description ? `<div class="item-description">${this.escapeHtml(award.description)}</div>` : ''}
+                        </div>
+                    `;
+                }).join('')}
+            </div>`
+            : '';
+
         const headlineMatch = shouldHighlight('headline');
         const schoolMatch = shouldHighlight('school');
 
@@ -757,9 +864,12 @@ class AttendeesDatabase {
             </div>
             ${experienceHTML}
             ${educationHTML}
+            ${projectsHTML}
             ${organizationsHTML}
             ${volunteeringHTML}
+            ${awardsHTML}
             ${skillsHTML}
+            ${interestsHTML}
             ${attendee.url ? `<a href="${this.escapeHtml(attendee.url)}" target="_blank" class="linkedin-link">View LinkedIn Profile →</a>` : ''}
         `;
     }

@@ -65,7 +65,7 @@ Return a JSON object with this EXACT structure:
       "relevance": "string",
       "highlights": [
         {
-          "section": "string (experience/education/skills/headline/organizations/volunteering)",
+          "section": "string (experience/education/skills/headline/organizations/volunteering/projects/awards/interests)",
           "index": number (the array index of the item to highlight, e.g., 0 for first experience, 2 for third education),
           "field": "string (optional - which specific field: title/company/school/degree/name/role/organization)",
           "reason": "string (why this specific item matches)",
@@ -76,9 +76,9 @@ Return a JSON object with this EXACT structure:
   ]
 }
 
-CRITICAL: For highlights with section="experience", "education", "organizations", or "volunteering":
+CRITICAL: For highlights with section="experience", "education", "organizations", "volunteering", "projects", or "awards":
 - You MUST provide the "index" field specifying which array item (0-indexed)
-- You MUST provide the "field" to specify what to highlight (e.g., "title", "company", "school", "role")
+- You MUST provide the "field" to specify what to highlight (e.g., "title", "company", "school", "role", "name", "description")
 - Do NOT use vague text matching - be explicit about the exact array index
 - Example: {"section": "experience", "index": 2, "field": "company", "reason": "Worked at Twitch"} means highlight the company field of the 3rd experience entry
 
