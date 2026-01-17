@@ -130,9 +130,9 @@ class AttendeesDatabase {
 
         const modelInfo = {
             'vector-search': {
-                quality: '⭐⭐⭐⭐ Great (Semantic similarity + AI scoring)',
-                cost: '~$0.0001 per search (embedding only)',
-                speed: 'Very Fast (<1s)'
+                quality: '⭐⭐⭐⭐ Great (Vector pre-filter + AI scoring)',
+                cost: '~$0.01 per search (50 candidates to AI)',
+                speed: 'Fast (2-4s)'
             },
             'gemini-3-flash': {
                 quality: '⭐⭐⭐⭐ Excellent (Newest, Dec 2025)',

@@ -6,7 +6,7 @@ import urllib.error
 
 # Supabase configuration
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
-SUPABASE_KEY = os.environ.get('SUPABASE_SERVICE_KEY', '')  # Use service key for server-side
+SUPABASE_KEY = os.environ.get('SUPABASE_SERVICE_KEY', '')
 
 def get_embedding(text, api_key):
     """Generate embedding using Gemini text-embedding-004 model"""
@@ -30,9 +30,12 @@ def get_embedding(text, api_key):
 
     return result['embedding']['values']
 
-def search_supabase(query_embedding, match_count=20, match_threshold=0.5):
-    """Search Supabase for similar attendees using vector similarity"""
-    # Use Supabase's RPC to call a vector similarity function
+def search_supabase(query_embedding, match_count=50, match_threshold=0.3):
+    """Search Supabase for similar attendees using vector similarity
+
+    Using a low threshold (0.3) to cast a wide net - the AI will do the real filtering.
+    Fetching up to 50 candidates to ensure we don't miss relevant matches.
+    """
     url = f'{SUPABASE_URL}/rest/v1/rpc/match_attendees'
 
     req_data = {
@@ -54,63 +57,198 @@ def search_supabase(query_embedding, match_count=20, match_threshold=0.5):
     response = urllib.request.urlopen(req, timeout=30)
     return json.loads(response.read().decode('utf-8'))
 
-def get_ai_analysis(search_query, attendees_data, api_key):
-    """Use Gemini to analyze and score the vector search results"""
-    url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}'
-
-    prompt = """You are analyzing pre-filtered search results. These attendees were selected by vector similarity search.
-
-Your job is to:
-1. Score each attendee on how well they match the search query (0-100)
-2. Provide a relevance explanation
-3. Highlight specific matching sections
-
-SCORING RULES:
-- 95-100: Perfect match - directly and explicitly meets the search criteria
-- 85-94: Exceptional match - meets all or nearly all criteria with strong evidence
+def get_base_prompt():
+    """Returns the base prompt text - same as search.py for consistency"""
+    return """SCORING RULES (score field is REQUIRED):
+Assign scores based on how well they satisfy the search criteria:
+- 95-100: Perfect match - directly and explicitly meets the search criteria (e.g., currently works at the company being searched for)
+- 85-94: Exceptional match - meets all or nearly all criteria with strong, direct evidence
 - 75-84: Strong match - meets most criteria with good evidence
-- 60-74: Good match - meets several criteria
-- 40-59: Moderate match - meets some criteria
-- 20-39: Weak match - barely meets criteria
+- 60-74: Good match - meets several criteria or partially meets many criteria
+- 40-59: Moderate match - meets some criteria or weakly meets several criteria
+- 20-39: Weak match - barely meets criteria or only tangentially related
 - 0-19: Very weak match - minimal relevance
 
-Return a JSON object with this structure:
+SCORING EXAMPLES:
+- Searching for "connection to Company X" + person currently works at Company X = 95-100
+- Searching for "connection to Company X" + person previously worked at Company X = 85-94
+- Searching for "experience in field Y" + person has 3+ years direct experience = 90-100
+- Searching for "experience in field Y" + person has 1 year direct experience = 75-85
+
+MATCHING GUIDELINES:
+- Direct matches: The search term appears explicitly in the text (e.g., searching "Boston" and finding "Boston University")
+- Inferred matches: Requires factual knowledge (e.g., searching "Maine" and finding "Berwick Academy" which is actually located in Maine)
+- For INFERRED matches, you MUST be certain of the connection - do NOT guess or make assumptions
+- For INFERRED matches, always provide the factual context in the reason field
+- Partial matches: The profile satisfies some but not all of the search parameters
+
+SCORING CRITERIA:
+- Weight matches based on relevance and directness
+- Consider the strength of evidence for each criterion
+- Account for multiple parameters in complex queries
+- Penalize profiles that only weakly satisfy criteria
+- Reward profiles that exceed expectations
+
+CRITICAL RULES FOR HIGHLIGHTS:
+- ONLY highlight experiences/sections that DIRECTLY relate to the search query
+- If searching for "investing experience", ONLY highlight roles explicitly involving investing (e.g., "Investor", "Investment Analyst")
+- Do NOT highlight "Co-Founder" just because the person is an investor elsewhere
+- If searching for a location like "Maine or New Hampshire":
+  * ONLY highlight schools/companies actually located in those states
+  * Do NOT highlight schools just because they're in the same region (e.g., Boston University is NOT in Maine/New Hampshire)
+  * You MUST know the actual location - if uncertain, do NOT highlight it
+- If searching for "connection to Company X" or "experience at Company X":
+  * ONLY highlight experiences at Company X itself
+  * Do NOT highlight other companies, even if they're in the same industry
+  * Do NOT highlight unrelated experiences just because the person worked at Company X elsewhere
+  * Example: If searching for "Twitch experience", only highlight the Twitch role, NOT MongoDB roles
+- If searching for "experience with Technology Y":
+  * ONLY highlight experiences explicitly involving Technology Y
+  * Do NOT highlight unrelated roles at companies that use Technology Y
+- Be PRECISE and CONSERVATIVE with highlights - when in doubt, don't highlight it
+- Be rigorous with scoring - don't inflate scores without strong justification
+
+Return a JSON object with this EXACT structure:
 {
-  "summary": "Brief summary of results",
+  "summary": "string",
   "matches": [
     {
-      "id": "attendee_id",
-      "score": 85,
-      "relevance": "Explanation of why they match",
+      "id": number,
+      "score": number (REQUIRED - 0 to 100),
+      "relevance": "string",
       "highlights": [
         {
-          "section": "experience",
-          "index": 0,
-          "field": "title",
-          "reason": "Why this matches"
+          "section": "string (experience/education/skills/languages/headline/organizations/volunteering/projects/awards/interests)",
+          "index": number (the array index of the item to highlight, e.g., 0 for first experience, 2 for third education),
+          "field": "string (optional - which specific field: title/company/school/degree/name/role/organization)",
+          "reason": "string (why this specific item matches)",
+          "weight": "low/medium/high"
         }
       ]
     }
   ]
 }
 
-Return ONLY valid JSON, nothing else."""
+CRITICAL: For highlights with section="experience", "education", "organizations", "volunteering", "projects", or "awards":
+- You MUST provide the "index" field specifying which array item (0-indexed)
+- You MUST provide the "field" to specify what to highlight (e.g., "title", "company", "school", "role", "name", "description")
+- Do NOT use vague text matching - be explicit about the exact array index
+- Example: {"section": "experience", "index": 2, "field": "company", "reason": "Worked at Twitch"} means highlight the company field of the 3rd experience entry
+
+Return ONLY the JSON, nothing else. THE "score" FIELD IS MANDATORY FOR EVERY MATCH.
+
+Example format:
+{
+  "summary": "Found 2 people with connection to Palantir (1 perfect match, 1 good match)",
+  "matches": [
+    {
+      "id": "123",
+      "score": 98,
+      "relevance": "Perfect match: Currently employed at Palantir Technologies as Tech Lead",
+      "highlights": [
+        {
+          "section": "experience",
+          "index": 0,
+          "field": "title",
+          "reason": "Currently works at Palantir as Tech Lead",
+          "weight": "high"
+        },
+        {
+          "section": "headline",
+          "reason": "Headline mentions Palantir",
+          "weight": "high"
+        }
+      ]
+    },
+    {
+      "id": "456",
+      "score": 88,
+      "relevance": "Exceptional match: Previously worked at Palantir as Software Engineer for 2 years",
+      "highlights": [
+        {
+          "section": "experience",
+          "index": 1,
+          "field": "company",
+          "reason": "Past employment at Palantir",
+          "weight": "high"
+        }
+      ]
+    }
+  ]
+}
+
+CRITICAL SCORING REMINDER:
+- If someone CURRENTLY works at a company being searched = score 95-100 (PERFECT MATCH)
+- If someone PREVIOUSLY worked at a company being searched = score 85-94 (EXCEPTIONAL MATCH)
+- DO NOT give scores below 95 for current employees of companies being explicitly searched for"""
+
+def format_attendees_for_ai(attendees):
+    """Format Supabase attendees data for AI consumption"""
+    formatted = []
+    for a in attendees:
+        profile = {
+            'id': a.get('id'),
+            'name': a.get('name'),
+            'headline': a.get('headline'),
+            'location': a.get('location'),
+            'school': a.get('school'),
+            'url': a.get('url'),
+            'image': a.get('image'),
+            'about': a.get('about'),
+        }
+
+        # Parse JSON fields
+        for field in ['experience', 'education', 'organizations', 'volunteering', 'projects', 'awards']:
+            val = a.get(field)
+            if val:
+                if isinstance(val, str):
+                    try:
+                        profile[field] = json.loads(val)
+                    except:
+                        profile[field] = val
+                else:
+                    profile[field] = val
+
+        # Array fields
+        for field in ['skills', 'languages', 'interests']:
+            if a.get(field):
+                profile[field] = a.get(field)
+
+        formatted.append(profile)
+
+    return formatted
+
+def call_gemini_api(api_key, search_query, attendees_data):
+    """Call Gemini API with the pre-filtered attendees from vector search"""
+    base_prompt = get_base_prompt()
+
+    url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}'
 
     req_data = {
+        'systemInstruction': {
+            'parts': [{
+                'text': 'You are a precise JSON generator. You MUST include a "score" field (integer 0-100) for every match object. This field is absolutely mandatory and cannot be omitted under any circumstances.'
+            }]
+        },
         'contents': [{
             'parts': [{
-                'text': f"""{prompt}
+                'text': f"""*** CRITICAL: Every match object MUST include a "score" field (integer 0-100). DO NOT OMIT THIS FIELD. ***
+
+These attendees were pre-filtered by vector similarity search. Analyze them carefully for the search query.
+
+Attendee database:
+{json.dumps(attendees_data, indent=2)}
+
+{base_prompt}
 
 Search query: "{search_query}"
-
-Attendees to analyze:
-{json.dumps(attendees_data, indent=2)}"""
+"""
             }],
             'role': 'user'
         }],
         'generationConfig': {
-            'temperature': 0.3,
-            'maxOutputTokens': 8000
+            'temperature': 0.5,
+            'maxOutputTokens': 16000
         }
     }
 
@@ -120,22 +258,61 @@ Attendees to analyze:
         headers={'Content-Type': 'application/json'}
     )
 
-    response = urllib.request.urlopen(req, timeout=45)
-    result = json.loads(response.read().decode('utf-8'))
+    return urllib.request.urlopen(req, timeout=55)
 
-    # Parse Gemini response
-    text = result['candidates'][0]['content']['parts'][0]['text']
+def parse_gemini_response(response_json):
+    """Parse Gemini API response"""
+    try:
+        if 'candidates' not in response_json or len(response_json['candidates']) == 0:
+            if 'error' in response_json:
+                raise Exception(f"Gemini API error: {response_json['error'].get('message', 'Unknown error')}")
+            if 'promptFeedback' in response_json:
+                feedback = response_json['promptFeedback']
+                if feedback.get('blockReason'):
+                    raise Exception(f"Request blocked: {feedback.get('blockReason')}")
+            raise Exception("No candidates in Gemini response")
 
-    # Clean up markdown if present
-    text = text.strip()
-    if text.startswith('```json'):
-        text = text[7:]
-    if text.startswith('```'):
-        text = text[3:]
-    if text.endswith('```'):
-        text = text[:-3]
+        candidate = response_json['candidates'][0]
+        finish_reason = candidate.get('finishReason', '')
 
-    return json.loads(text.strip())
+        if finish_reason == 'MAX_TOKENS':
+            raise Exception("Response was cut off due to max tokens limit")
+        if finish_reason == 'SAFETY':
+            raise Exception("Response blocked due to safety filters")
+
+        if 'content' not in candidate or 'parts' not in candidate['content']:
+            raise Exception(f"Unexpected response structure. Finish reason: {finish_reason}")
+
+        text = candidate['content']['parts'][0]['text']
+
+        # Check for error messages
+        text_lower = text.strip().lower()
+        if text_lower.startswith('an error') or text_lower.startswith('i apologize') or text_lower.startswith('i cannot'):
+            raise Exception(f"Gemini returned an error: {text[:200]}...")
+
+        # Clean markdown
+        text = text.strip()
+        if text.startswith('```json'):
+            text = text[7:]
+        if text.startswith('```'):
+            text = text[3:]
+        if text.endswith('```'):
+            text = text[:-3]
+        text = text.strip()
+
+        result_json = json.loads(text)
+
+        return {
+            'content': [{
+                'type': 'text',
+                'text': json.dumps(result_json)
+            }],
+            'usage': response_json.get('usageMetadata', {})
+        }
+    except json.JSONDecodeError as e:
+        raise Exception(f"Failed to parse JSON: {str(e)}")
+    except Exception as e:
+        raise Exception(f"Failed to parse Gemini response: {str(e)}")
 
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -146,7 +323,7 @@ class handler(BaseHTTPRequestHandler):
             data = json.loads(body.decode('utf-8'))
 
             search_query = data.get('query')
-            match_count = data.get('match_count', 20)
+            match_count = data.get('match_count', 50)  # Default to 50 candidates
 
             google_api_key = os.environ.get('GOOGLE_API_KEY', '')
 
@@ -165,31 +342,30 @@ class handler(BaseHTTPRequestHandler):
             # Step 1: Generate embedding for the search query
             query_embedding = get_embedding(search_query, google_api_key)
 
-            # Step 2: Search Supabase for similar attendees
-            similar_attendees = search_supabase(query_embedding, match_count)
+            # Step 2: Search Supabase for similar attendees (wide net with low threshold)
+            similar_attendees = search_supabase(query_embedding, match_count, match_threshold=0.2)
 
             if not similar_attendees:
                 self.send_json_response({
                     'content': [{
                         'type': 'text',
                         'text': json.dumps({
-                            'summary': 'No matching attendees found',
+                            'summary': 'No matching attendees found in cloud database. Make sure you have synced your profiles.',
                             'matches': []
                         })
                     }]
                 }, 200)
                 return
 
-            # Step 3: Use AI to analyze and score the results
-            analysis = get_ai_analysis(search_query, similar_attendees, google_api_key)
+            # Step 3: Format attendees for AI
+            formatted_attendees = format_attendees_for_ai(similar_attendees)
 
-            # Return in the format expected by the frontend
-            self.send_json_response({
-                'content': [{
-                    'type': 'text',
-                    'text': json.dumps(analysis)
-                }]
-            }, 200)
+            # Step 4: Use AI to analyze and score the results (same as regular search)
+            response = call_gemini_api(google_api_key, search_query, formatted_attendees)
+            result = json.loads(response.read().decode('utf-8'))
+            parsed = parse_gemini_response(result)
+
+            self.send_json_response(parsed, 200)
 
         except urllib.error.HTTPError as e:
             error_body = e.read().decode('utf-8')

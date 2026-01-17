@@ -1,0 +1,105 @@
+[
+  {
+    "id": 1737139200000.001,
+    "addedAt": "2026-01-17T12:00:00.000Z",
+    "name": "Luca Girodon",
+    "headline": "B.A. in Global Affairs at Yale University",
+    "location": "New Haven, CT, USA",
+    "school": "Yale University",
+    "experience": [
+      {
+        "title": "Research Assistant to Professor Akhil Reed Amar",
+        "company": "Yale Law School",
+        "duration": "September 2025 – present",
+        "description": ""
+      },
+      {
+        "title": "Research Assistant to Professor Lisa Dicker",
+        "company": "Harvard Law School",
+        "duration": "June 2025 – July 2025",
+        "description": "Researched and wrote a 24 page legal memo on the legality and pitfalls of Private military and security contractors. Authored and designed a 60 page peace game on transitional justice in Bosnia Herzegovina for Harvard Law School's Program on Negotiation courses."
+      },
+      {
+        "title": "Defense researcher",
+        "company": "Sahaidachnyi Security Center",
+        "duration": "May 2025 – June 2025",
+        "description": "Contributed memorandums on civil society and war efforts for Danish and Swedish Ministries. Authored 20 page legal memorandum on strategies to counter Russian abduction of Ukrainian children. Leveraged OSINT to counter Russian disinformation."
+      },
+      {
+        "title": "Tearline researcher",
+        "company": "U.S National Geospatial Intelligence Agency (NGA)",
+        "duration": "February 2025 – present",
+        "description": "Researching China's role in the African critical mineral industry using open source intelligence and geospatial imaging analysis."
+      },
+      {
+        "title": "Summer Intern for Environmental Law",
+        "company": "Attorney General of Washington D.C",
+        "duration": "May 2024 – July 2024",
+        "description": "Worked in Housing and Environmental Justice division. Prepared over 15 memos and talking points. Drafted D.C legislation on consumer protection and antitrust measures."
+      },
+      {
+        "title": "Advisor",
+        "company": "Yale Jackson School of Global Affairs Student Advisory Group",
+        "duration": "Fall 2023 – present",
+        "description": "Selected by the dean to collaborate on curriculum changes. Served as liaison between students and administration."
+      },
+      {
+        "title": "Summer intern for public, regulatory, and environmental law",
+        "company": "August Debouzy",
+        "duration": "May 2023 – July 2023",
+        "description": "Conducted research on European and French law. Led a 25 page policy analysis of the EU Green Deal for a client."
+      },
+      {
+        "title": "Research assistant",
+        "company": "Yale Macmillan Center",
+        "duration": "January 2023 – August 2023",
+        "description": "Designed dataset classifying French soldiers during the American Revolutionary War for Professor Steven Wilkinson's book."
+      },
+      {
+        "title": "Summer Intern",
+        "company": "Iraqi embassy to D.C",
+        "duration": "June 2021 – August 2021",
+        "description": "Attended think tank events and congressional hearings. Created talking points for Deputy Chief of Mission. Only high school student interning for the embassy."
+      }
+    ],
+    "education": [
+      {
+        "school": "Yale University, Jackson School of Global Affairs",
+        "degree": "B.A. in Global Affairs",
+        "duration": "Expected May 2026",
+        "description": "GPA: 3.85/4.0. Coursework includes The Politics of American Foreign Policy, Negotiations, Combating Aggressive Russian Influence in Eastern Europe, Issues in Contemporary Conflict Resolution."
+      }
+    ],
+    "skills": [
+      "R",
+      "STATA",
+      "Open source intelligence",
+      "Geospatial intelligence",
+      "French (bilingual)",
+      "English (bilingual)",
+      "Spanish (professional proficiency)"
+    ],
+    "organizations": [
+      {
+        "name": "Yale Interpretation Network",
+        "role": "Interpreter",
+        "duration": "September 2023 – Present"
+      },
+      {
+        "name": "Yale Daily News",
+        "role": "Opinion Columnist",
+        "duration": "December 2023 – Present"
+      },
+      {
+        "name": "Yale Rugby Football Club",
+        "role": "Executive board member and player",
+        "duration": "October 2023 – Present"
+      },
+      {
+        "name": "Brothers in Unity Society",
+        "role": "President",
+        "duration": "February 2024 – Present"
+      }
+    ]
+  }
+]
