@@ -218,11 +218,18 @@ def format_attendees_for_ai(attendees):
 
     return formatted
 
-def call_gemini_api(api_key, search_query, attendees_data):
+def call_gemini_api(api_key, search_query, attendees_data, model='gemini-flash'):
     """Call Gemini API with the pre-filtered attendees from vector search"""
     base_prompt = get_base_prompt()
 
-    url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}'
+    # Map model names to Gemini model IDs
+    model_map = {
+        'gemini-flash': 'gemini-2.0-flash',
+        'gemini-pro': 'gemini-2.5-pro-preview-06-05'
+    }
+    model_id = model_map.get(model, 'gemini-2.0-flash')
+
+    url = f'https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent?key={api_key}'
 
     req_data = {
         'systemInstruction': {
@@ -259,6 +266,76 @@ Search query: "{search_query}"
     )
 
     return urllib.request.urlopen(req, timeout=55)
+
+def call_anthropic_api(api_key, search_query, attendees_data):
+    """Call Anthropic Claude API with the pre-filtered attendees"""
+    base_prompt = get_base_prompt()
+
+    req_data = {
+        'model': 'claude-sonnet-4-20250514',
+        'max_tokens': 16000,
+        'temperature': 0.5,
+        'system': [{
+            'type': 'text',
+            'text': 'You are a precise JSON generator. You MUST include a "score" field (integer 0-100) for every match object. This field is absolutely mandatory and cannot be omitted under any circumstances.'
+        }],
+        'messages': [{
+            'role': 'user',
+            'content': [{
+                'type': 'text',
+                'text': f"""*** CRITICAL: Every match object MUST include a "score" field (integer 0-100). DO NOT OMIT THIS FIELD. ***
+
+These attendees were pre-filtered by vector similarity search. Analyze them carefully for the search query.
+
+Attendee database:
+{json.dumps(attendees_data, indent=2)}
+
+{base_prompt}
+
+Search query: "{search_query}"
+"""
+            }]
+        }]
+    }
+
+    req = urllib.request.Request(
+        'https://api.anthropic.com/v1/messages',
+        data=json.dumps(req_data).encode('utf-8'),
+        headers={
+            'Content-Type': 'application/json',
+            'x-api-key': api_key,
+            'anthropic-version': '2023-06-01'
+        }
+    )
+
+    return urllib.request.urlopen(req, timeout=55)
+
+def parse_anthropic_response(response_json):
+    """Parse Anthropic API response"""
+    try:
+        text = response_json['content'][0]['text']
+
+        # Clean markdown
+        text = text.strip()
+        if text.startswith('```json'):
+            text = text[7:]
+        if text.startswith('```'):
+            text = text[3:]
+        if text.endswith('```'):
+            text = text[:-3]
+        text = text.strip()
+
+        result_json = json.loads(text)
+
+        return {
+            'content': [{
+                'type': 'text',
+                'text': json.dumps(result_json)
+            }],
+            'usage': response_json.get('usage', {})
+        }
+    except Exception as e:
+        raise Exception(f"Failed to parse Anthropic response: {str(e)}")
 
 def parse_gemini_response(response_json):
     """Parse Gemini API response"""
@@ -323,9 +400,11 @@ class handler(BaseHTTPRequestHandler):
             data = json.loads(body.decode('utf-8'))
 
             search_query = data.get('query')
-            match_count = data.get('match_count', 50)  # Default to 50 candidates
+            match_count = data.get('match_count', 50)
+            ai_model = data.get('model', 'gemini-flash')  # gemini-flash, gemini-pro, or claude
 
             google_api_key = os.environ.get('GOOGLE_API_KEY', '')
+            anthropic_api_key = os.environ.get('ANTHROPIC_API_KEY', '')
 
             if not search_query:
                 self.send_error_response({'error': 'Search query is required'}, 400)
@@ -337,6 +416,10 @@ class handler(BaseHTTPRequestHandler):
 
             if not google_api_key:
                 self.send_error_response({'error': 'Google API key not configured'}, 500)
+                return
+
+            if ai_model == 'claude' and not anthropic_api_key:
+                self.send_error_response({'error': 'Anthropic API key not configured'}, 500)
                 return
 
             # Step 1: Generate embedding for the search query
@@ -360,10 +443,15 @@ class handler(BaseHTTPRequestHandler):
             # Step 3: Format attendees for AI
             formatted_attendees = format_attendees_for_ai(similar_attendees)
 
-            # Step 4: Use AI to analyze and score the results (same as regular search)
-            response = call_gemini_api(google_api_key, search_query, formatted_attendees)
-            result = json.loads(response.read().decode('utf-8'))
-            parsed = parse_gemini_response(result)
+            # Step 4: Use AI to analyze and score the results
+            if ai_model == 'claude':
+                response = call_anthropic_api(anthropic_api_key, search_query, formatted_attendees)
+                result = json.loads(response.read().decode('utf-8'))
+                parsed = parse_anthropic_response(result)
+            else:
+                response = call_gemini_api(google_api_key, search_query, formatted_attendees, ai_model)
+                result = json.loads(response.read().decode('utf-8'))
+                parsed = parse_gemini_response(result)
 
             self.send_json_response(parsed, 200)
 

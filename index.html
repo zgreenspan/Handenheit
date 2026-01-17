@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Handenheit</title>
-    <link rel="stylesheet" href="styles.css?v=59">
+    <link rel="stylesheet" href="styles.css?v=60">
     <script>
         // Check authentication before loading page
         if (sessionStorage.getItem('handenheit_auth') !== 'true') {
@@ -128,10 +128,16 @@
                         <div class="ai-icon">✨</div>
                         <input type="text" id="aiSearchInput" placeholder="Ask AI: 'Find students interested in national security' or 'Who has experience at startups?'" class="ai-search-input">
                         <select id="modelSelect" class="model-select">
-                            <option value="vector-search">Vector Search (Fastest & Cheapest)</option>
-                            <option value="gemini-3-flash">Gemini 3 Flash</option>
-                            <option value="gemini-3-pro">Gemini 3 Pro (Best Multimodal)</option>
-                            <option value="claude-sonnet">Claude Sonnet (Best Reasoning)</option>
+                            <optgroup label="Vector Search + AI (Cloud Database)">
+                                <option value="vector-gemini-flash">Vector + Gemini Flash (Recommended)</option>
+                                <option value="vector-gemini-pro">Vector + Gemini Pro</option>
+                                <option value="vector-claude">Vector + Claude Sonnet</option>
+                            </optgroup>
+                            <optgroup label="Full AI Search (Local Database)">
+                                <option value="gemini-3-flash">Gemini 3 Flash</option>
+                                <option value="gemini-3-pro">Gemini 3 Pro (Best Multimodal)</option>
+                                <option value="claude-sonnet">Claude Sonnet (Best Reasoning)</option>
+                            </optgroup>
                         </select>
                         <button id="aiSearchBtn" class="btn btn-primary">Search</button>
                         <button id="clearSearchBtn" class="btn btn-secondary" style="display: none;">Clear Results</button>
@@ -254,6 +260,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=59"></script>
+    <script src="app.js?v=60"></script>
 </body>
 </html>

@@ -129,24 +129,34 @@ class AttendeesDatabase {
         const speedSpan = document.getElementById('modelSpeed');
 
         const modelInfo = {
-            'vector-search': {
-                quality: '⭐⭐⭐⭐ Great (Vector pre-filter + AI scoring)',
-                cost: '~$0.01 per search (50 candidates to AI)',
+            'vector-gemini-flash': {
+                quality: '⭐⭐⭐⭐ Great (Vector pre-filter + Gemini Flash)',
+                cost: '~$0.01 per search (50 candidates)',
                 speed: 'Fast (2-4s)'
             },
+            'vector-gemini-pro': {
+                quality: '⭐⭐⭐⭐⭐ Excellent (Vector pre-filter + Gemini Pro)',
+                cost: '~$0.03 per search (50 candidates)',
+                speed: 'Fast (3-5s)'
+            },
+            'vector-claude': {
+                quality: '⭐⭐⭐⭐⭐ Excellent (Vector pre-filter + Claude)',
+                cost: '~$0.05 per search (50 candidates)',
+                speed: 'Fast (3-5s)'
+            },
             'gemini-3-flash': {
-                quality: '⭐⭐⭐⭐ Excellent (Newest, Dec 2025)',
-                cost: 'First: $0.23, Then: $0.003 each (60min Pro cache FREE)',
+                quality: '⭐⭐⭐⭐ Excellent (Full database scan)',
+                cost: 'First: $0.23, Then: $0.003 each (60min cache)',
                 speed: 'Very Fast (1-2s)'
             },
             'gemini-3-pro': {
-                quality: '⭐⭐⭐⭐⭐ World-class (Best Multimodal)',
-                cost: 'First: $0.90, Then: $0.012 each (60min Pro cache FREE)',
+                quality: '⭐⭐⭐⭐⭐ World-class (Full database scan)',
+                cost: 'First: $0.90, Then: $0.012 each (60min cache)',
                 speed: 'Fast (2-3s)'
             },
             'claude-sonnet': {
-                quality: '⭐⭐⭐⭐⭐ Excellent (Best Reasoning)',
-                cost: 'First: $1.35, Then: $0.14 each (5min cache, 90% off)',
+                quality: '⭐⭐⭐⭐⭐ Best Reasoning (Full database scan)',
+                cost: 'First: $1.35, Then: $0.14 each (5min cache)',
                 speed: 'Fast (2-3s)'
             }
         };
@@ -1503,8 +1513,11 @@ class AttendeesDatabase {
             return;
         }
 
-        // For vector search, we don't need local attendees
-        if (this.selectedModel !== 'vector-search' && this.attendees.length === 0) {
+        // Check if using vector search
+        const isVectorSearch = this.selectedModel.startsWith('vector-');
+
+        // For non-vector search, we need local attendees
+        if (!isVectorSearch && this.attendees.length === 0) {
             statusDiv.className = 'ai-search-status error';
             statusDiv.textContent = 'No attendees in database yet';
             return;
@@ -1513,7 +1526,7 @@ class AttendeesDatabase {
         // Show loading state with pulsating glow
         searchInput.classList.add('searching');
         statusDiv.className = 'ai-search-status searching';
-        statusDiv.textContent = this.selectedModel === 'vector-search'
+        statusDiv.textContent = isVectorSearch
             ? '🔍 Searching cloud database with vector similarity...'
             : '🤔 AI is searching through profiles...';
         resultsDiv.innerHTML = '';
@@ -1523,11 +1536,20 @@ class AttendeesDatabase {
             let apiUrl;
             let requestBody;
 
-            if (this.selectedModel === 'vector-search') {
+            if (isVectorSearch) {
+                // Extract the AI model from the vector search option
+                let aiModel = 'gemini-flash';
+                if (this.selectedModel === 'vector-gemini-pro') {
+                    aiModel = 'gemini-pro';
+                } else if (this.selectedModel === 'vector-claude') {
+                    aiModel = 'claude';
+                }
+
                 apiUrl = '/api/vector-search';
                 requestBody = JSON.stringify({
                     query: query,
-                    match_count: 20
+                    match_count: 50,
+                    model: aiModel
                 });
             } else {
                 apiUrl = window.location.hostname === 'localhost'
