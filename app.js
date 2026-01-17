@@ -129,6 +129,11 @@ class AttendeesDatabase {
         const speedSpan = document.getElementById('modelSpeed');
 
         const modelInfo = {
+            'vector-search': {
+                quality: '⭐⭐⭐⭐ Great (Semantic similarity + AI scoring)',
+                cost: '~$0.0001 per search (embedding only)',
+                speed: 'Very Fast (<1s)'
+            },
             'gemini-3-flash': {
                 quality: '⭐⭐⭐⭐ Excellent (Newest, Dec 2025)',
                 cost: 'First: $0.23, Then: $0.003 each (60min Pro cache FREE)',
@@ -192,6 +197,10 @@ class AttendeesDatabase {
         document.getElementById('exportBtn').addEventListener('click', () => this.exportData());
         document.getElementById('importBtn').addEventListener('click', () => this.importData());
         document.getElementById('clearDbBtn').addEventListener('click', () => this.clearDatabase());
+
+        // Cloud Sync
+        document.getElementById('syncToCloudBtn').addEventListener('click', () => this.syncToCloud());
+        document.getElementById('checkSyncBtn').addEventListener('click', () => this.checkSyncStatus());
 
         // Model selection
         document.getElementById('modelSelect').addEventListener('change', () => this.changeModel());
@@ -1420,6 +1429,67 @@ class AttendeesDatabase {
         document.addEventListener('keydown', handleEscape);
     }
 
+    // Cloud Sync Methods
+    async syncToCloud() {
+        const statusDiv = document.getElementById('syncStatus');
+        const syncBtn = document.getElementById('syncToCloudBtn');
+
+        if (this.attendees.length === 0) {
+            statusDiv.className = 'sync-status error';
+            statusDiv.textContent = 'No attendees to sync. Add some profiles first.';
+            return;
+        }
+
+        syncBtn.disabled = true;
+        syncBtn.textContent = 'Syncing...';
+        statusDiv.className = 'sync-status syncing';
+        statusDiv.textContent = `Syncing ${this.attendees.length} profiles to cloud (this may take a few minutes)...`;
+
+        try {
+            // Sync in batches of 10 to avoid timeout
+            const batchSize = 10;
+            let synced = 0;
+            let failed = 0;
+
+            for (let i = 0; i < this.attendees.length; i += batchSize) {
+                const batch = this.attendees.slice(i, i + batchSize);
+
+                const response = await fetch('/api/sync-attendees', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ attendees: batch })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || 'Sync failed');
+                }
+
+                synced += result.success;
+                failed += result.failed;
+
+                statusDiv.textContent = `Syncing... ${synced}/${this.attendees.length} profiles complete`;
+            }
+
+            statusDiv.className = 'sync-status success';
+            statusDiv.textContent = `Sync complete! ${synced} profiles synced${failed > 0 ? `, ${failed} failed` : ''}.`;
+
+        } catch (error) {
+            statusDiv.className = 'sync-status error';
+            statusDiv.textContent = `Sync failed: ${error.message}`;
+        } finally {
+            syncBtn.disabled = false;
+            syncBtn.textContent = 'Sync to Cloud';
+        }
+    }
+
+    async checkSyncStatus() {
+        const statusDiv = document.getElementById('syncStatus');
+        statusDiv.className = 'sync-status';
+        statusDiv.textContent = `Local database: ${this.attendees.length} profiles. Cloud sync available.`;
+    }
+
     // AI Search
     async performAISearch() {
         const query = document.getElementById('aiSearchInput').value.trim();
@@ -1433,7 +1503,8 @@ class AttendeesDatabase {
             return;
         }
 
-        if (this.attendees.length === 0) {
+        // For vector search, we don't need local attendees
+        if (this.selectedModel !== 'vector-search' && this.attendees.length === 0) {
             statusDiv.className = 'ai-search-status error';
             statusDiv.textContent = 'No attendees in database yet';
             return;
@@ -1442,27 +1513,39 @@ class AttendeesDatabase {
         // Show loading state with pulsating glow
         searchInput.classList.add('searching');
         statusDiv.className = 'ai-search-status searching';
-        statusDiv.textContent = '🤔 AI is searching through profiles...';
+        statusDiv.textContent = this.selectedModel === 'vector-search'
+            ? '🔍 Searching cloud database with vector similarity...'
+            : '🤔 AI is searching through profiles...';
         resultsDiv.innerHTML = '';
 
         try {
-            // Use the proxy server - works both locally and on Vercel
-            // On Vercel: /api/search points to the serverless function
-            // Locally: falls back to localhost:8000 if /api/search fails
-            const apiUrl = window.location.hostname === 'localhost'
-                ? 'http://localhost:8000/api/search'
-                : '/api/search';
+            // Determine API endpoint based on model
+            let apiUrl;
+            let requestBody;
+
+            if (this.selectedModel === 'vector-search') {
+                apiUrl = '/api/vector-search';
+                requestBody = JSON.stringify({
+                    query: query,
+                    match_count: 20
+                });
+            } else {
+                apiUrl = window.location.hostname === 'localhost'
+                    ? 'http://localhost:8000/api/search'
+                    : '/api/search';
+                requestBody = JSON.stringify({
+                    model: this.selectedModel,
+                    query: query,
+                    attendees: JSON.stringify(this.attendees, null, 2)
+                });
+            }
 
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    model: this.selectedModel,
-                    query: query,
-                    attendees: JSON.stringify(this.attendees, null, 2)
-                })
+                body: requestBody
             });
 
             const data = await response.json();

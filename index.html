@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Handenheit</title>
-    <link rel="stylesheet" href="styles.css?v=58">
+    <link rel="stylesheet" href="styles.css?v=59">
     <script>
         // Check authentication before loading page
         if (sessionStorage.getItem('handenheit_auth') !== 'true') {
@@ -128,7 +128,8 @@
                         <div class="ai-icon">✨</div>
                         <input type="text" id="aiSearchInput" placeholder="Ask AI: 'Find students interested in national security' or 'Who has experience at startups?'" class="ai-search-input">
                         <select id="modelSelect" class="model-select">
-                            <option value="gemini-3-flash">Gemini 3 Flash (Recommended)</option>
+                            <option value="vector-search">Vector Search (Fastest & Cheapest)</option>
+                            <option value="gemini-3-flash">Gemini 3 Flash</option>
                             <option value="gemini-3-pro">Gemini 3 Pro (Best Multimodal)</option>
                             <option value="claude-sonnet">Claude Sonnet (Best Reasoning)</option>
                         </select>
@@ -222,6 +223,16 @@
                 </div>
 
                 <div class="section">
+                    <h3>Cloud Sync (Supabase)</h3>
+                    <p>Sync your local database to the cloud for vector search. This enables semantic search using AI embeddings.</p>
+                    <div id="syncStatus" class="sync-status"></div>
+                    <div style="display: flex; gap: 12px; margin-top: 12px;">
+                        <button id="syncToCloudBtn" class="btn btn-primary">Sync to Cloud</button>
+                        <button id="checkSyncBtn" class="btn btn-secondary">Check Sync Status</button>
+                    </div>
+                </div>
+
+                <div class="section">
                     <h3>Export Database</h3>
                     <p>Download all collected attendee data as JSON.</p>
                     <button id="exportBtn" class="btn btn-primary">Export to JSON</button>
@@ -243,6 +254,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=58"></script>
+    <script src="app.js?v=59"></script>
 </body>
 </html>

@@ -1295,6 +1295,36 @@ input[type="file"] {
     background: white;
 }
 
+/* Sync Status */
+.sync-status {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    margin-top: 12px;
+}
+
+.sync-status:empty {
+    display: none;
+}
+
+.sync-status.syncing {
+    background: #E3F2FD;
+    color: #1565C0;
+    border: 1px solid #90CAF9;
+}
+
+.sync-status.success {
+    background: #E8F5E9;
+    color: #2E7D32;
+    border: 1px solid #A5D6A7;
+}
+
+.sync-status.error {
+    background: #FFEBEE;
+    color: #C62828;
+    border: 1px solid #EF9A9A;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     header {
