@@ -296,6 +296,11 @@ def parse_gemini_response(response_json):
 
         text = candidate['content']['parts'][0]['text']
 
+        # Check if Gemini returned an error message instead of JSON
+        text_lower = text.strip().lower()
+        if text_lower.startswith('an error') or text_lower.startswith('i apologize') or text_lower.startswith('i cannot') or text_lower.startswith('sorry'):
+            raise Exception(f"Gemini returned an error message instead of JSON: {text[:200]}...")
+
         # Remove markdown code blocks if present
         text = text.strip()
         if text.startswith('```json'):
