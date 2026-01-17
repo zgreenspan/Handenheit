@@ -135,7 +135,7 @@ def call_anthropic_api(api_key, search_query, attendees_data):
 
     req_data = {
         'model': 'claude-sonnet-4-20250514',
-        'max_tokens': 4000,
+        'max_tokens': 16000,
         'temperature': 0.5,
         'system': [{
             'type': 'text',
@@ -208,7 +208,7 @@ Search query: "{search_query}"
         }],
         'generationConfig': {
             'temperature': 0.5,
-            'maxOutputTokens': 4000
+            'maxOutputTokens': 16000
         }
     }
 
@@ -250,7 +250,7 @@ Search query: "{search_query}"
             }
         ],
         'temperature': 0.5,
-        'max_tokens': 4000
+        'max_tokens': 16000
     }
 
     req = urllib.request.Request(
