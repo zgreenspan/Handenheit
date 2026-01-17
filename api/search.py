@@ -267,7 +267,34 @@ Search query: "{search_query}"
 def parse_gemini_response(response_json):
     """Parse Gemini API response to match Anthropic format"""
     try:
-        text = response_json['candidates'][0]['content']['parts'][0]['text']
+        # Check if we have candidates at all
+        if 'candidates' not in response_json or len(response_json['candidates']) == 0:
+            # Check for error in response
+            if 'error' in response_json:
+                raise Exception(f"Gemini API error: {response_json['error'].get('message', 'Unknown error')}")
+            # Check for prompt feedback (safety blocks, etc.)
+            if 'promptFeedback' in response_json:
+                feedback = response_json['promptFeedback']
+                if feedback.get('blockReason'):
+                    raise Exception(f"Request blocked: {feedback.get('blockReason')}")
+            raise Exception("No candidates in Gemini response - the model may have hit output limits or safety filters")
+
+        candidate = response_json['candidates'][0]
+
+        # Check for finish reason issues
+        finish_reason = candidate.get('finishReason', '')
+        if finish_reason == 'MAX_TOKENS':
+            raise Exception("Gemini response was cut off due to max output tokens limit. Try reducing the number of profiles or using a model with higher limits.")
+        if finish_reason == 'SAFETY':
+            raise Exception("Gemini blocked the response due to safety filters")
+        if finish_reason == 'RECITATION':
+            raise Exception("Gemini blocked the response due to recitation concerns")
+
+        # Check if content exists
+        if 'content' not in candidate or 'parts' not in candidate['content']:
+            raise Exception(f"Unexpected response structure. Finish reason: {finish_reason}")
+
+        text = candidate['content']['parts'][0]['text']
 
         # Remove markdown code blocks if present
         text = text.strip()
