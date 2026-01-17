@@ -173,7 +173,7 @@ Attendee database:
         }
     )
 
-    return urllib.request.urlopen(req, timeout=30)
+    return urllib.request.urlopen(req, timeout=55)
 
 def call_gemini_api(api_key, search_query, attendees_data, model_id):
     """Call Google Gemini API
@@ -218,7 +218,7 @@ Search query: "{search_query}"
         headers={'Content-Type': 'application/json'}
     )
 
-    return urllib.request.urlopen(req, timeout=30)
+    return urllib.request.urlopen(req, timeout=55)
 
 def call_openai_api(api_key, search_query, attendees_data, model_id):
     """Call OpenAI API with prompt caching
@@ -262,7 +262,7 @@ Search query: "{search_query}"
         }
     )
 
-    return urllib.request.urlopen(req, timeout=30)
+    return urllib.request.urlopen(req, timeout=55)
 
 def parse_gemini_response(response_json):
     """Parse Gemini API response to match Anthropic format"""
